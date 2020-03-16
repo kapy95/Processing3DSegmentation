@@ -5,7 +5,7 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, im
     mkdir(outputDir);
 
     if exist('colours', 'var') == 0 || isempty(colours)
-        colours = colorcube(max(labelledImage(:))+1);
+        colours = colorcube(double(max(labelledImage(:))+1));
         colours(end, :) = [];
         colours = colours(randperm(max(labelledImage(:))), :);
     end
