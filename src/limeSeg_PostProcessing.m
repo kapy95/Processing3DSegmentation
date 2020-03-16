@@ -1,4 +1,4 @@
-function limeSeg_PostProcessing(outputDir, fileName)
+function limeSeg_PostProcessing(outputDir)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
@@ -26,82 +26,58 @@ function limeSeg_PostProcessing(outputDir, fileName)
         load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
     end
     
-    resizeImg = 0.25;
+    resizeImg = 1/zScale;
 
-    tipValue = 0;
+    tipValue = 4;
 
-    imageSequenceFiles = [dir(fullfile(outputDir, 'ImageSequence/*.tif'));dir(fullfile(outputDir, 'ImageSequence/*.tiff'))];
+    imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
-    imageSequenceFiles=imageSequenceFiles(~(NoValidFiles));
-      
-    %% if there is only 1 image, convert to imageSequence, then load.
-    if size(imageSequenceFiles,1) == 1
-        fname = fullfile(imageSequenceFiles.folder, imageSequenceFiles.name);
-        info = imfinfo(fname);
-        num_images = numel(info);
-        for k = 1:num_images
-            demoImg = imread(fname, k);
-            imwrite(demoImg , [imageSequenceFiles.folder '\image' num2str(k,'%03.f') '.tif']) ;
-        end
-        mkdir([imageSequenceFiles.folder,'\rawImageSequence\'])
-        movefile(fname, [imageSequenceFiles.folder,'\rawImageSequence\' imageSequenceFiles.name]);
-    else
-        demoFile =  imageSequenceFiles(3);
-        demoImg = imread(fullfile(demoFile.folder, demoFile.name));
-    end
-    
+    imageSequenceFiles=imageSequenceFiles(~NoValidFiles);
+    demoFile =  imageSequenceFiles(3);
+    demoImg = imread(fullfile(demoFile.folder, demoFile.name));
+
+    imgSize = size(imresize(demoImg, resizeImg));
+
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
-        selpath = fullfile(outputDir, fileName);
-        tiff_info = imfinfo(selpath); % return tiff structure, one element per image
-        tiff_stack = imread(selpath, 1) ; % read in first image
-        %concatenate each successive tiff to tiff_stack
-        for ii = 2 : size(tiff_info, 1)
-            temp_tiff = imread(selpath, ii);
-            tiff_stack = cat(3 , tiff_stack, temp_tiff);
-        end
+        [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
         
-        %set the background to the '0' label
-        if min(tiff_stack(:))==1
-            labelledImage = double(tiff_stack)-1;
-        else
-            labelledImage = double(tiff_stack);
-        end
-        outsideGland = labelledImage == 0;
+     if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
+        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+     else
+        [labelledImage, lumenImage] = inferLumen(labelledImage);
+     end
+     
+        %It add pixels and remove some
+        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
+        %outsideGland = validRegion == 0;
+        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
+        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        outsideGland(lumenImage) = 0;
         
-        if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
-            [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        else
-            %%Posible idea: try catch this line and if an error occurs get
-            %%the biggest 'cell' from plantSeg
-            %[labelledImage, lumenImage] = inferLumen(labelledImage);
-            
-            [cellsVolume] = regionprops3(labelledImage, 'Volume');
-            [~, lumenIndex] = max(table2array(cellsVolume));
-            lumenImage = labelledImage == lumenIndex;
-            labelledImage(labelledImage == lumenIndex) = 0;
-        end
+        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
         glandOrientation = -orientationGland.Orientation(1);
+        %labelledImage = imrotate(labelledImage, glandOrientation);
+        %lumenImage = imrotate(lumenImage, glandOrientation);
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
-    
+
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);
-    setappdata(0,'resizeImg', resizeImg);
+    setappdata(0,'resizeImg',resizeImg);
     setappdata(0,'tipValue', tipValue);
     setappdata(0, 'glandOrientation', glandOrientation);
     setappdata(0, 'canModifyOutsideGland', 0);
     setappdata(0, 'hideLumen',0);
     setappdata(0, 'canModifyInsideLumen',0);
-    setappdata(0, 'colours', colours);
 
     if exist(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'valid_cells.mat'))
@@ -115,12 +91,8 @@ function limeSeg_PostProcessing(outputDir, fileName)
     end
     [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
 
-    
     %% Insert no valid cells
     while isequal(answer, 'Yes')
-        %volumeViewer(vertcat(labelledImage>0, lumenImage))
-        setappdata(0, 'notFoundCellsApical', notFoundCellsApical);
-        setappdata(0, 'notFoundCellsBasal', notFoundCellsBasal);
         h = window();
         waitfor(h);
 
@@ -140,7 +112,6 @@ function limeSeg_PostProcessing(outputDir, fileName)
             [answer] = isEverythingCorrect();
         end
         setappdata(0,'labelledImage',labelledImage);
-        volumeViewer close
     end
 
     %% Save apical and basal 3d information
@@ -151,4 +122,3 @@ function limeSeg_PostProcessing(outputDir, fileName)
     
     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), 'cellularFeatures'); 
 end
-
