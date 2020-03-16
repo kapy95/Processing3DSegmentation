@@ -27,7 +27,7 @@ function [labelledImage, lumenImage, glandOrientation] = processLumen(lumenDir, 
     %pcshow(lumenPC);
 %     pixelLocations = round(double(lumenPC.Location)*resizeImg);
 %     [lumenImage] = addCellToImage(pixelLocations, lumenImage, 1);
-    lumenImage = addTipsImg3D(tipValue, lumenImage);
+    lumenImage = addTipsImg3D(tipValue+1, lumenImage);
     lumenImage = double(lumenImage);
     
     
