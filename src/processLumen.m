@@ -6,7 +6,8 @@ function [labelledImage, lumenImage, glandOrientation] = processLumen(lumenDir, 
     lumenStack = dir(fullfile(lumenDir, 'SegmentedLumen', '*.tif'));
     NoValidFiles = startsWith({lumenStack.name},'._','IgnoreCase',true);
     lumenStack=lumenStack(~NoValidFiles);
-    lumenImage = zeros(size(labelledImage)-((tipValue+1)*2));
+    labelledImageWithoutTips = addTipsImg3D(-tipValue,labelledImage);
+    lumenImage = zeros(size(labelledImageWithoutTips));
     for numZ = 1:size(lumenStack, 1)
         imgZ = imread(fullfile(lumenStack(numZ).folder, lumenStack(numZ).name));
         
