@@ -1,4 +1,4 @@
-function exportLumen(lumenImage, outputDir, tipValue)
+function exportLumen(lumenImage, outputDir)
 %EXPORTASIMAGESEQUENCE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Lumen', 'inferLumen'));        

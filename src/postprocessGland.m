@@ -1,4 +1,4 @@
-function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue)
+function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours)
 %POSTPROCESSGLAND Process gland image to obtain layers and export
 %   Once the gland has all its features on the 3D images, we extracted the
 %   layers (apical and basal) and export it in slices.
@@ -14,10 +14,10 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
 
     %% Get apical layer by dilating the lumen
     [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
-    exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours, tipValue);
+    exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours);
 
     %% Export image sequence
-    [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
-    exportLumen(lumenImage,outputDir, tipValue);
+    [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours);
+    exportLumen(lumenImage,outputDir);
 end
 

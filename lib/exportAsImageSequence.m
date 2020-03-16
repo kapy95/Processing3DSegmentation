@@ -1,4 +1,4 @@
-function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, tipValue, imageSequence)
+function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, imageSequence)
 %EXPORTASIMAGESEQUENCE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -26,8 +26,8 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, ti
         ax = get(h, 'Children');
         set(ax,'Units','normalized')
         set(ax,'Position',[0 0 1 1])
-        if tipValue ~= -1 %%WHY THIS CONDITION????????????
-            for numCentroid = 1:size(centroids, 1)
+
+        for numCentroid = 1:size(centroids, 1)
                 if exist('imageSequence', 'var') == 0
                     if mean(colours(numCentroid+1, :)) < 0.4
                         text(ax, centroids(numCentroid, 2), centroids(numCentroid, 1), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
@@ -37,8 +37,8 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, ti
                 else
                     text(ax, centroids(numCentroid, 2), centroids(numCentroid, 1), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
                 end
-            end
         end
+        
         h.InvertHardcopy = 'off';
         saveas(h,fullfile(outputDir, strcat('labelledImage_', num2str(numZ), '.png')))
         %imwrite(labelledImage(:, :, numZ), , );

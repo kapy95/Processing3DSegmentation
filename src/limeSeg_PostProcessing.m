@@ -65,7 +65,7 @@ function limeSeg_PostProcessing(outputDir)
         %labelledImage = imrotate(labelledImage, glandOrientation);
         %lumenImage = imrotate(lumenImage, glandOrientation);
         
-        [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
+        [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours);
     end
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
