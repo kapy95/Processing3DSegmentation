@@ -71,6 +71,10 @@ function limeSeg_PostProcessing(outputDir)
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage, outsideGland, lumenImage, outputDir, colours, tipValue);
     end
+    
+    
+    %%%From this lime limeSeg_PostProcessing and platSeg_PostProcessing are
+    %%%equal
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
     setappdata(0,'outputDir', outputDir);
@@ -82,6 +86,8 @@ function limeSeg_PostProcessing(outputDir)
     setappdata(0, 'canModifyOutsideGland', 0);
     setappdata(0, 'hideLumen',0);
     setappdata(0, 'canModifyInsideLumen',0);
+    setappdata(0, 'colours', colours);
+
 
     if exist(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'valid_cells.mat'))
