@@ -3,9 +3,9 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, im
 %   Detailed explanation goes here
 
     mkdir(outputDir);
-
+    labelledImage = double(labelledImage);
     if exist('colours', 'var') == 0 || isempty(colours)
-        colours = colorcube(double(max(labelledImage(:))+1));
+        colours = colorcube(max(labelledImage(:))+1);
         colours(end, :) = [];
         colours = colours(randperm(max(labelledImage(:))), :);
     end
