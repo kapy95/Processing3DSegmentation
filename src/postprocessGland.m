@@ -10,7 +10,7 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
     %labelledImage(lumenImage) = 0;
 
     %% Get basal layer by dilating the empty space
-    basalLayer = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland & imdilate(lumenImage, strel('sphere', 1)) == 0);
+    basalLayer = getBasalFrom3DImage(labelledImage, lumenImage, outsideGland & imdilate(lumenImage, strel('sphere', 1)) == 0);
 
     %% Get apical layer by dilating the lumen
     [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);

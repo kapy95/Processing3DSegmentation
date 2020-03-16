@@ -1,9 +1,9 @@
-function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland)
+function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, outsideGland)
 %GETBASALFROM3DIMAGE Summary of this function goes here
 %   Detailed explanation goes here
 
     if exist('outsideGland', 'var') == 0
-        se = strel('sphere',tipValue);
+        se = strel('sphere',4);
         objectDilated = imdilate(labelledImage>0, se);
         objectDilated = imfill(objectDilated, 'holes');
         finalObject = imerode(objectDilated, se);

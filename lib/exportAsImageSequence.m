@@ -26,7 +26,7 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, ti
         ax = get(h, 'Children');
         set(ax,'Units','normalized')
         set(ax,'Position',[0 0 1 1])
-        if tipValue ~= -1
+        if tipValue ~= -1 %%WHY THIS CONDITION????????????
             for numCentroid = 1:size(centroids, 1)
                 if exist('imageSequence', 'var') == 0
                     if mean(colours(numCentroid+1, :)) < 0.4
