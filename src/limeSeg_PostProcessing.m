@@ -26,9 +26,9 @@ function limeSeg_PostProcessing(outputDir)
         load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
     end
     
-    resizeImg = 1/zScale;
+    resizeImg = 0.25;
 
-    tipValue = 4;
+    tipValue = 5;
 
     imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
