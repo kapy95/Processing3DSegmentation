@@ -465,7 +465,7 @@ if strcmp(eventdata.Source.SelectionType, 'normal')
 
             labelledImage = getappdata(0, 'labelledImageTemp');
             labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
-            selectedCell = labelledImageZ(pos(2), pos(1));
+            selectedCell = labelledImageZ(pos(1), pos(2));
 
             setappdata(0,'cellId',selectedCell);
             set(handles.tbCellId,'string',num2str(selectedCell));

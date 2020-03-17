@@ -34,7 +34,7 @@ if showAllCells==1
 else
     imshow(imgToShow);
     if selectCellId > 0
-        [xIndices, yIndices] = find(labelledImage_Resized(:, :,  selectedZ) == selectCellId);
+        [xIndices, yIndices] = find(labelledImage_Resized(:, :,  selectedZ)' == selectCellId);
         if isempty(xIndices) == 0
             hold on
             s2 = scatter(xIndices/resizeImg, yIndices/resizeImg, 'blue','filled','SizeData',10);
