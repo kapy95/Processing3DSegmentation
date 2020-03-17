@@ -11,7 +11,7 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
     edgePixels = find(missingRegions);
     if isempty(edgePixels) == 0
         [xEdge, yEdge, zEdge] = ind2sub(size(labelMask), edgePixels);
-        pixelsIndices = find((imdilate(missingRegions, strel('sphere', 4)).*labelMask)>0);
+        pixelsIndices = find((uint16(imdilate(missingRegions, strel('sphere', 4))).*labelMask)>0);
         [x, y, z] = ind2sub(size(labelMask), pixelsIndices);
 
         %% Splitting calculation to perform it in batches
