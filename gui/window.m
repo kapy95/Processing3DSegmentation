@@ -36,8 +36,7 @@ if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
 
-if nargout
-    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+if nargout argout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
 end
@@ -90,8 +89,6 @@ end
 
 % imageSequence = addTipsImg3D(tipValue+1, imageSequence);
 
-cmap = jet(max(max(max(getappdata(0, 'labelledImage')))));
-setappdata(0,'cmap',cmap);
 setappdata(0,'showAllCells',0);
 % imageSequence = imrotate(imageSequence, -glandOrientation);
 

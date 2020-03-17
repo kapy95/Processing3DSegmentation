@@ -50,7 +50,7 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
 %     end
     
     labelledImage = addTipsImg3D(tipValue, labelledImage);
-    labelledImage = double(labelledImage);
+%     labelledImage = double(labelledImage);
     
     %% Get invalid region
     [outsideGland] = getOutsideGland(labelledImage);
