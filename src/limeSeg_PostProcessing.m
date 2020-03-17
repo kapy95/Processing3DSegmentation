@@ -79,12 +79,15 @@ function limeSeg_PostProcessing(outputDir)
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage, outsideGland, lumenImage, outputDir, colours, tipValue);
     end
-    
-    
+    imgSize(1:2)= imgSize(1:2)./resizeImg;
+    labelledImage = imresize3(labelledImage,imgSize,'nearest');
+    lumenImage = imresize3(lumenImage,imgSize,'nearest');
     %%%From this lime limeSeg_PostProcessing and platSeg_PostProcessing are
     %%%equal
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
+    
+    
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);
