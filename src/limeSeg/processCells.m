@@ -1,20 +1,23 @@
-function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeImg, imgSize, tipValue)
+function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeImg, imgSize, zScale, tipValue)
 %PROCESSCELLS Obtain cells from output limeSeg
 %   Import the point cloud of cells to create a 3D image (as a 3D matrix)
 %   that will allow to use it here on Matlab.
 
     cellFiles = dir(fullfile(directoryOfCells, 'OutputLimeSeg', 'cell_*'));
     
-    labelledImage = zeros(imgSize(1), imgSize(2), 1);
+    labelledImage = zeros(imgSize);
 
 %     figure;
     for numCell = 1:size(cellFiles, 1)
         plyFile = fullfile(cellFiles(numCell).folder, cellFiles(numCell).name, 'T_1.ply');
         ptCloud = pcread(plyFile);
-        pixelLocations = round(double(ptCloud.Location)*resizeImg);
+        pixelLocations = double(ptCloud.Location);
+        pixelLocations(:,1:2) = pixelLocations(:,1:2).*resizeImg;
+        pixelLocations(:,3) = pixelLocations(:,3)./zScale;
+
         try
             % Import a single cell
-            [labelledImage] = addCellToImage(pixelLocations, labelledImage, numCell);
+            [labelledImage] = addCellToImage(round(pixelLocations), labelledImage, numCell);
         catch ex
             if isequal(ex.message, 'The alpha shape is empty.')
                 newException = MException(ex.identifier,strcat('There is a cell with no points. Please, check if that cell should have points or, instead, remove the directory: ', cellFiles(numCell).name));

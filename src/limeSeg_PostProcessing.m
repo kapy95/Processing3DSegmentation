@@ -35,14 +35,22 @@ function limeSeg_PostProcessing(outputDir)
     imageSequenceFiles=imageSequenceFiles(~NoValidFiles);
     demoFile =  imageSequenceFiles(3);
     demoImg = imread(fullfile(demoFile.folder, demoFile.name));
-
-    imgSize = size(imresize(demoImg, resizeImg));
+    
+    imageSequence = zeros(size(demoImg,1),size(demoImg,2),size(imageSequenceFiles, 1));
+    for numImg = 1:size(imageSequenceFiles, 1)
+        actualFile = imageSequenceFiles(numImg);
+        actualImg = imread(fullfile(actualFile.folder, actualFile.name));
+        imageSequence(:, :, numImg) = actualImg;
+    end
+    imgSize = size(imageSequence);
+    imgSize(1:2)= imgSize(1:2).*resizeImg;
+    %imgSize = size(imresize(demoImg, resizeImg));
 
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
-        [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
+        [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, zScale, tipValue);
         
      if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
