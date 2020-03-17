@@ -472,8 +472,10 @@ if strcmp(eventdata.Source.SelectionType, 'normal')
 
         catch
         end
-
-        showSelectedCell()
+        
+        XLimOriginal = get(gca, 'XLim');
+        YLimOriginal = get(gca, 'YLim');
+        showSelectedCell(XLimOriginal, YLimOriginal);
     end
 elseif strcmp(eventdata.Source.SelectionType, 'open')
     zoomFig = zoom(hObject);
