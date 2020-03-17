@@ -270,10 +270,14 @@ roiMask = getappdata(0, 'roiMask');
 if roiMask ~= -1
     delete(roiMask);
 end
-roiMask = impoly(gca);
-newCellRegion = createMask(roiMask);
-setappdata(0,'roiMask', roiMask);
-setappdata(0,'newCellRegion', newCellRegion);
+try
+    roiMask = impoly(gca);
+    newCellRegion = createMask(roiMask);
+    setappdata(0,'roiMask', roiMask);
+    setappdata(0,'newCellRegion', newCellRegion);
+catch
+    disp('ROI cancelled')
+end
 setappdata(0,'windowListener',1);
 
 
