@@ -197,6 +197,7 @@ if roiMask ~= -1
     end
 end
 close(progressBar)
+zoom(gcf, 'off');
 showSelectedCell();
 
 
@@ -222,7 +223,10 @@ function tbCellId_Callback(hObject, eventdata, handles)
 setappdata(0,'windowListener',1);
 
 setappdata(0,'cellId',str2double(get(hObject,'String')));
-showSelectedCell();
+
+XLimOriginal = get(gca, 'XLim');
+YLimOriginal = get(gca, 'YLim');
+showSelectedCell(XLimOriginal, YLimOriginal);
 
 
 function tbZFrame_Callback(hObject, eventdata, handles)
@@ -237,6 +241,7 @@ labelledImage = getappdata(0, 'labelledImageTemp');
 newFrameValue = str2double(get(hObject,'String'));
 if newFrameValue > 0 && newFrameValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newFrameValue);
+    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -284,7 +289,10 @@ labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 if newValue <= max(labelledImage(:))
     setappdata(0, 'cellId', newValue);
     set(handles.tbCellId,'string',num2str(newValue));
-    showSelectedCell();
+    
+    XLimOriginal = get(gca, 'XLim');
+    YLimOriginal = get(gca, 'YLim');
+    showSelectedCell(XLimOriginal, YLimOriginal);
 end
 
 % --- Executes on button press in decreaseID.
@@ -297,7 +305,10 @@ newValue = getappdata(0, 'cellId')-1;
 if newValue >= 0
     setappdata(0, 'cellId', newValue);
     set(handles.tbCellId,'string',num2str(newValue));
-    showSelectedCell();
+    
+    XLimOriginal = get(gca, 'XLim');
+    YLimOriginal = get(gca, 'YLim');
+    showSelectedCell(XLimOriginal, YLimOriginal);
 end
 
 % --- Executes on button press in increaseZ.
@@ -313,6 +324,7 @@ if newValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
+    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -327,6 +339,7 @@ if newValue > 0
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
+    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -363,7 +376,9 @@ function hideLumen_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'hideLumen', toggleValue)
-showSelectedCell();
+XLimOriginal = get(gca, 'XLim');
+YLimOriginal = get(gca, 'YLim');
+showSelectedCell(XLimOriginal, YLimOriginal);
 
 
 % --- Executes on button press in btRemove.
@@ -415,11 +430,11 @@ if isempty(answer) == 0
         labelledImageTmp = mergeLabelsOfImage(labelledImage, cellsToMerge);
         setappdata(0, 'labelledImageTemp', labelledImageTmp);
         updateResizedImage();
+        showSelectedCell();
     else
         errordlg('You should add more than 1 cell label', 'MEC!');
     end
 end
-
 
 % --- Executes on button press in chBoxShowAll.
 function chBoxShowAll_Callback(hObject, eventdata, handles)
@@ -429,22 +444,9 @@ function chBoxShowAll_Callback(hObject, eventdata, handles)
     
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'showAllCells', toggleValue)
-showSelectedCell();
-
-
-function imageCanvas_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to imageCanvas (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-function figure1_ButtonDownFcn(hObject, eventdata, handles)
-% hObject    handle to figure1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% --- Executes on mouse press over figure background, over a disabled or
-% --- inactive control, or over an axes background.
-
+XLimOriginal = get(gca, 'XLim');
+YLimOriginal = get(gca, 'YLim');
+showSelectedCell(XLimOriginal, YLimOriginal);
 
 function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -469,7 +471,7 @@ if strcmp(eventdata.Source.SelectionType, 'normal')
 
         showSelectedCell()
     end
-else
+elseif strcmp(eventdata.Source.SelectionType, 'open')
     zoomFig = zoom(hObject);
     zoomFig.Enable = 'on';
     setappdata(0, 'zoomFig', zoomFig);
@@ -493,6 +495,7 @@ if strcmp(answer, 'Yes')
     setappdata(0, 'labelledImageTemp', labelledImage);
     updateResizedImage();
 end
+zoom(gcf, 'off');
 showSelectedCell();
 
 % --- Executes on slider movement.
@@ -503,6 +506,7 @@ function slider1_Callback(hObject, eventdata, handles)
 numZ = round(get(hObject,'Value'));
 setappdata(0, 'selectedZ', numZ);
 set(handles.tbZFrame,'string',num2str(numZ));
+zoom(gcf, 'off');
 showSelectedCell();
 
 % --- Executes during object creation, after setting all properties.
@@ -520,15 +524,4 @@ set(hObject,'SliderStep',[1 1]./(size(imageSequence,3)-1));
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on key release with focus on figure1 or any of its controls.
-function figure1_WindowKeyReleaseFcn(hObject, eventdata, handles)
-% hObject    handle to figure1 (see GCBO)
-% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
-%	Key: name of the key that was released, in lower case
-%	Character: character interpretation of the key(s) that was released
-%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) released
-% handles    structure with handles and user data (see GUIDATA)
-zoom(gcf, 'off');
 

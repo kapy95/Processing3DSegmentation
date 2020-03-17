@@ -1,4 +1,4 @@
-function [] = showSelectedCell()
+function [] = showSelectedCell(XLimOriginal, YLimOriginal)
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
 selectCellId = getappdata(0, 'cellId');
@@ -27,6 +27,9 @@ if showAllCells==1
     hold on;
     if isempty(centroids) == 0
         textscatter(centroids(labelsZ(2:end),1)/resizeImg,centroids(labelsZ(2:end),2)/resizeImg,cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
+        if selectCellId > 0 && selectCellId <= max(labelsZ(:))
+            textscatter(centroids(selectCellId,1)/resizeImg,centroids(selectCellId,2)/resizeImg,num2cell(selectCellId),'TextDensityPercentage',100,'ColorData', [1 1 1], 'FontWeight', 'bold', 'FontSize', 11);
+        end
     end
 else
     imshow(imgToShow);
@@ -42,7 +45,6 @@ else
     hold off
 end
 
-
 %% Showing lumen
 [xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
 if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
@@ -52,6 +54,10 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     alpha(s,.5)
 end
 
+if exist('YLimOriginal', 'var')
+    set(gca, 'XLim', XLimOriginal);
+    set(gca, 'YLim', YLimOriginal);
+end
 
 end
 
