@@ -271,6 +271,7 @@ if roiMask ~= -1
     delete(roiMask);
 end
 try
+    zoom(gcf, 'off');
     roiMask = impoly(gca);
     newCellRegion = createMask(roiMask);
     setappdata(0,'roiMask', roiMask);
@@ -456,31 +457,31 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%% If you are not modifying ROIs
-if strcmp(eventdata.Source.SelectionType, 'normal')
-    if getappdata(0,'windowListener')==1
+
+if getappdata(0,'windowListener')==1
+    %% If you are not modifying ROIs
+    if strcmp(eventdata.Source.SelectionType, 'normal')
         try
             pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
             pos = pos(1,1:2);
-
+            
             labelledImage = getappdata(0, 'labelledImageTemp');
             labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
             selectedCell = labelledImageZ(pos(2), pos(1));
-
+            
             setappdata(0,'cellId',selectedCell);
             set(handles.tbCellId,'string',num2str(selectedCell));
-
+            
+            XLimOriginal = get(gca, 'XLim');
+            YLimOriginal = get(gca, 'YLim');
+            showSelectedCell(XLimOriginal, YLimOriginal);
         catch
         end
-        
-        XLimOriginal = get(gca, 'XLim');
-        YLimOriginal = get(gca, 'YLim');
-        showSelectedCell(XLimOriginal, YLimOriginal);
+    elseif strcmp(eventdata.Source.SelectionType, 'open')
+        zoomFig = zoom(hObject);
+        zoomFig.Enable = 'on';
+        setappdata(0, 'zoomFig', zoomFig);
     end
-elseif strcmp(eventdata.Source.SelectionType, 'open')
-    zoomFig = zoom(hObject);
-    zoomFig.Enable = 'on';
-    setappdata(0, 'zoomFig', zoomFig);
 end
 
 
