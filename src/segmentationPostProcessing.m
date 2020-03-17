@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLayer,outputDir,resizeImg,tipValue,glandOrientation,colours)
+function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLayer,outputDir,resizeImg,tipValue,glandOrientation,colours)
     %%Once lumen and cells have been adquired, this function provide a
     %%modification by means of window() 
 
@@ -32,6 +32,9 @@ function [outputArg1,outputArg2] = segmentationPostProcessing(labelledImage,lume
 
     %% Insert no valid cells
     while isequal(answer, 'Yes')
+        %volumeViewer(vertcat(labelledImage>0, lumenImage))
+        setappdata(0, 'notFoundCellsApical', notFoundCellsApical);
+        setappdata(0, 'notFoundCellsBasal', notFoundCellsBasal);
         h = window();
         waitfor(h);
 
@@ -40,6 +43,8 @@ function [outputArg1,outputArg2] = segmentationPostProcessing(labelledImage,lume
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
             lumenImage = getappdata(0, 'lumenImage');
+            colours = getappdata(0, 'colours');
+
             close all
             [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
            
@@ -51,6 +56,8 @@ function [outputArg1,outputArg2] = segmentationPostProcessing(labelledImage,lume
             [answer] = isEverythingCorrect();
         end
         setappdata(0,'labelledImage',labelledImage);
+        %volumeViewer close
+
     end
 
     %% Save apical and basal 3d information
