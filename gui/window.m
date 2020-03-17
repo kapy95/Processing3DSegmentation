@@ -163,7 +163,7 @@ if roiMask ~= -1
                 end
             end
             if selectCellId <= max(labelledImage(:))
-                [y, x] = find(newCellRegion & insideGland);
+                [x, y] = find(newCellRegion & insideGland);
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
                 
                 labelledImage(newIndices) = selectCellId;
@@ -173,7 +173,7 @@ if roiMask ~= -1
                 %Smooth surface of next and previos Z
                 %labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
             else % Add cell
-                [y, x] = find(newCellRegion);
+                [x, y] = find(newCellRegion);
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
                 labelledImage(newIndices) = selectCellId;
                 
@@ -183,7 +183,7 @@ if roiMask ~= -1
                 setappdata(0, 'colours', colours);
             end
         else
-            [y, x] = find(newCellRegion);
+            [x, y] = find(newCellRegion);
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
             labelledImage(newIndices) = selectCellId;
             lumenImage(newIndices) = 1;

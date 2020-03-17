@@ -46,7 +46,7 @@ else
 end
 
 %% Showing lumen
-[xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
+[xIndices, yIndices] = find(lumenImage(:, :,  selectedZ)' == 1);
 if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     hold on
     s = scatter(xIndices/resizeImg, yIndices/resizeImg, 'red', 'filled','SizeData',10);
