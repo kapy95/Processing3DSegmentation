@@ -84,7 +84,7 @@ for numImg = 1:size(imageSequenceFiles, 1)
     actualImg = imread(fullfile(actualFile.folder, actualFile.name));
     %imageSequence(end+1) = {imresize(fliplr(flip(actualImg')), resizeImg, 'nearest')};
     %imageSequence(end+1) = {imresize(actualImg, resizeImg, 'nearest')};
-    imageSequence(:, :, numImg) = actualImg;
+    imageSequence(:, :, numImg) = actualImg';
     %imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 

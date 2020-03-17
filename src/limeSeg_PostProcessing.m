@@ -52,11 +52,11 @@ function limeSeg_PostProcessing(outputDir)
         colours = [];
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, zScale, tipValue);
         
-     if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
-        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-     else
-        [labelledImage, lumenImage] = inferLumen(labelledImage);
-     end
+        if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
+            [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+        else
+            [labelledImage, lumenImage] = inferLumen(labelledImage);
+        end
      
         %It add pixels and remove some
         validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
@@ -81,7 +81,7 @@ function limeSeg_PostProcessing(outputDir)
     end
     imgSize(1:2)= imgSize(1:2)./resizeImg;
     labelledImage = imresize3(labelledImage,imgSize,'nearest');
-    lumenImage = imresize3(lumenImage,imgSize,'nearest');
+    lumenImage = imresize3(double(lumenImage),imgSize,'nearest');
         
     segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLayer,outputDir,resizeImg,tipValue,glandOrientation,colours)
 end
