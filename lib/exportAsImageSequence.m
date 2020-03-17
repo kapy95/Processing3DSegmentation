@@ -30,12 +30,12 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, im
         for numCentroid = 1:size(centroids, 1)
                 if exist('imageSequence', 'var') == 0
                     if mean(colours(numCentroid+1, :)) < 0.4
-                        text(ax, centroids(numCentroid, 2), centroids(numCentroid, 1), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
+                        text(ax, centroids(numCentroid, 1), centroids(numCentroid, 2), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
                     else
-                        text(ax, centroids(numCentroid, 2), centroids(numCentroid, 1), num2str(numCentroid), 'HorizontalAlignment', 'center');
+                        text(ax, centroids(numCentroid, 1), centroids(numCentroid, 2), num2str(numCentroid), 'HorizontalAlignment', 'center');
                     end
                 else
-                    text(ax, centroids(numCentroid, 2), centroids(numCentroid, 1), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
+                    text(ax, centroids(numCentroid, 1), centroids(numCentroid, 2), num2str(numCentroid), 'HorizontalAlignment', 'center', 'Color', 'white');
                 end
         end
         

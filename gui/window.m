@@ -152,8 +152,8 @@ if roiMask ~= -1
         
         if selectCellId > 0
             imgActualZ = labelledImage(:, :, selectedZ);
-            mostCommonIndex = mode(imgActualZ(newCellRegion'));
-            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || sum(imgActualZ(newCellRegion') == selectCellId) == 0
+            mostCommonIndex = mode(imgActualZ(newCellRegion));
+            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || sum(imgActualZ(newCellRegion) == selectCellId) == 0
                 answer = questdlg(['You are mostly replacing ', num2str(mostCommonIndex) , ' with ', num2str(selectCellId),'. Are you sure you want to proceed?'], ...
                     'Confirm', ...
                     'Yes','No', 'No');
@@ -163,7 +163,7 @@ if roiMask ~= -1
                 end
             end
             if selectCellId <= max(labelledImage(:))
-                [y, x] = find(newCellRegion & insideGland');
+                [y, x] = find(newCellRegion & insideGland);
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
                 
                 labelledImage(newIndices) = selectCellId;
