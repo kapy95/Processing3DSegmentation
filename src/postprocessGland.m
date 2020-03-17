@@ -20,7 +20,9 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
     apicalLayer = addTipsImg3D(-tipValue,apicalLayerWithTips);
 
     %% Export image sequence
-    exportAsImageSequence(apicalLayer+basalLayer, fullfile(outputDir, 'ApicalAndBasal_Labelled'), colours);
+    basalAndApical = apicalLayer;
+    basalAndApical(basalLayer>0) = basalLayer(basalLayer>0);
+    exportAsImageSequence(basalAndApical, fullfile(outputDir, 'ApicalAndBasal_Labelled'), colours);
 
     [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours);
     exportLumen(lumenImage,outputDir);
