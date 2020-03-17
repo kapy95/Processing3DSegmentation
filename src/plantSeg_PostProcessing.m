@@ -41,7 +41,7 @@ function plantSeg_PostProcessing(outputDir, fileName)
         num_images = numel(info);
         for k = 1:num_images
             demoImg = imread(fname, k);
-            imwrite(demoImg , [imageSequenceFiles.folder '\image' num2str(k,'%03.f') '.tif']) ;
+            imwrite(uint16(demoImg) , [imageSequenceFiles.folder '\image' num2str(k,'%03.f') '.tif']) ;
         end
         mkdir([imageSequenceFiles.folder,'\rawImageSequence\'])
         movefile(fname, [imageSequenceFiles.folder,'\rawImageSequence\' imageSequenceFiles.name]);
