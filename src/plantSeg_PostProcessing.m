@@ -129,6 +129,8 @@ function limeSeg_PostProcessing(outputDir, fileName)
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
             lumenImage = getappdata(0, 'lumenImage');
+            colours = getappdata(0, 'colours');
+            
             close all
             [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
            

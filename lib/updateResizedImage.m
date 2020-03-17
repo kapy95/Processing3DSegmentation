@@ -11,5 +11,7 @@ function updateResizedImage()
     
     setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
     setappdata(0, 'lumenImage_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
+    
+    zoom(gcf, 'off');
 end
 
