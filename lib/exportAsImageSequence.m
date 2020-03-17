@@ -16,7 +16,7 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, im
     h = figure('Visible', 'off');
     for numZ = 1:(size(labelledImage, 3))
         if exist('imageSequence', 'var') == 0
-            imshow((labelledImage(:, :, numZ)')+1, colours);
+            imshow((labelledImage(:, :, numZ))+1, colours);
         else
             imshow((imageSequence(:, :, numZ)));
         end
