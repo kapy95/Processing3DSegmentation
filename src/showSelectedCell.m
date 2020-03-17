@@ -17,12 +17,12 @@ cla
 
 if showAllCells==1
     %% Showing all cells
-    labImageZ = labelledImage_Resized(:, :,  selectedZ)';
+    labImageZ = labelledImage_Resized(:, :,  selectedZ);
     centLab = cat(1,regionprops(labImageZ,'Centroid'));
     centroids = vertcat(centLab.Centroid);
     labelsZ = unique(labImageZ);
     
-    B = labeloverlay(imgToShow, labelledImage(:, :,  selectedZ)', 'Colormap', colours);
+    B = labeloverlay(imgToShow, labelledImage(:, :,  selectedZ), 'Colormap', colours);
     imshow(B);
     hold on;
     if isempty(centroids) == 0
