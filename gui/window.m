@@ -475,11 +475,19 @@ answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId
 	'Remove cell', ...
 	'Yes','No', 'No');
 if strcmp(answer, 'Yes')
-    labelledImage = getappdata(0, 'labelledImageTemp');
-    labelledImage_selectedZ = labelledImage(:, :, getappdata(0, 'selectedZ'));
-    labelledImage_selectedZ(labelledImage_selectedZ == cellId) = 0;
-    labelledImage(:, :, getappdata(0, 'selectedZ')) = labelledImage_selectedZ;
-    setappdata(0, 'labelledImageTemp', labelledImage);
+    if cellId > 0
+        labelledImage = getappdata(0, 'labelledImageTemp');
+        labelledImage_selectedZ = labelledImage(:, :, getappdata(0, 'selectedZ'));
+        labelledImage_selectedZ(labelledImage_selectedZ == cellId) = 0;
+        labelledImage(:, :, getappdata(0, 'selectedZ')) = labelledImage_selectedZ;
+        setappdata(0, 'labelledImageTemp', labelledImage);
+    else
+        lumenImage = getappdata(0, 'lumenImageTemp');
+        lumenImage_selectedZ = lumenImage(:, :, getappdata(0, 'selectedZ'));
+        lumenImage_selectedZ(lumenImage_selectedZ == cellId) = 0;
+        lumenImage(:, :, getappdata(0, 'selectedZ')) = lumenImage_selectedZ;
+        setappdata(0, 'lumenImageTemp', lumenImage);
+    end
     updateResizedImage();
 end
 zoom(gcf, 'off');
