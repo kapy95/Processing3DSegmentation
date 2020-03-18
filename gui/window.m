@@ -488,7 +488,7 @@ if strcmp(answer, 'Yes')
     else
         lumenImage = getappdata(0, 'lumenImageTemp');
         lumenImage_selectedZ = lumenImage(:, :, getappdata(0, 'selectedZ'));
-        lumenImage_selectedZ(lumenImage_selectedZ == cellId) = 0;
+        lumenImage_selectedZ(lumenImage_selectedZ == 1) = 0;
         lumenImage(:, :, getappdata(0, 'selectedZ')) = lumenImage_selectedZ;
         setappdata(0, 'lumenImageTemp', lumenImage);
     end
