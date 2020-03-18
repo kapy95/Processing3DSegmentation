@@ -372,14 +372,18 @@ function btRemove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 cellId = getappdata(0, 'cellId');
-answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , '?'], ...
-	'Remove cell', ...
-	'Yes','No', 'No');
-if strcmp(answer, 'Yes')
-    labelledImage = getappdata(0, 'labelledImageTemp');
-    labelledImage(labelledImage == cellId) = 0;
-    setappdata(0, 'labelledImageTemp', labelledImage);
-    updateResizedImage();
+if cellId > 0
+    answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , '?'], ...
+        'Remove cell', ...
+        'Yes','No', 'No');
+    if strcmp(answer, 'Yes')
+        labelledImage = getappdata(0, 'labelledImageTemp');
+        labelledImage(labelledImage == cellId) = 0;
+        setappdata(0, 'labelledImageTemp', labelledImage);
+        updateResizedImage();
+    end
+else
+    warndlg('Operation forbidden. If you really want to do remove the lumen entirely, please let Pablo, Pedro or Antonio know.', 'Removing lumen', 'modal');
 end
 showSelectedCell();
 
