@@ -153,7 +153,13 @@ if roiMask ~= -1
         if selectCellId > 0
             imgActualZ = labelledImage(:, :, selectedZ);
             mostCommonIndex = mode(imgActualZ(newCellRegion));
-            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || sum(imgActualZ(newCellRegion) == selectCellId) == 0
+            % First condition: we do not care if you are modifying a cell
+            % and moving into the background. We do care if you are
+            % replacing one cell for another one.
+            % Second condition: Beware if you create two non-overlapping
+            % areas. If you are creating a new cell, we do not care about
+            % this.
+            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || (sum(imgActualZ(newCellRegion) == selectCellId) == 0 && selectCellId <= max(labelledImage(:)))
                 answer = questdlg(['You are mostly replacing ', num2str(mostCommonIndex) , ' with ', num2str(selectCellId),'. Are you sure you want to proceed?'], ...
                     'Confirm', ...
                     'Yes','No', 'No');
@@ -164,23 +170,19 @@ if roiMask ~= -1
             end
             if selectCellId <= max(labelledImage(:))
                 [x, y] = find(newCellRegion & insideGland);
-                newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
-                
-                labelledImage(newIndices) = selectCellId;
-                if getappdata(0, 'canModifyInsideLumen') == 1
-                    lumenImage(newIndices) = 0;
-                end
-                %Smooth surface of next and previos Z
-                %labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
             else % Add cell
                 [x, y] = find(newCellRegion);
-                newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
-                labelledImage(newIndices) = selectCellId;
                 
                 colours = getappdata(0, 'colours');
                 newColours = colorcube(255);
                 colours(end+1, :) = newColours(randi(255), :);
                 setappdata(0, 'colours', colours);
+            end
+            
+            newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+            labelledImage(newIndices) = selectCellId;
+            if getappdata(0, 'canModifyInsideLumen') == 1
+                lumenImage(newIndices) = 0;
             end
         else
             [x, y] = find(newCellRegion);
