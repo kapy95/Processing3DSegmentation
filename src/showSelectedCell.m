@@ -31,6 +31,7 @@ if showAllCells==1
             textscatter(centroids(selectCellId,1)/resizeImg,centroids(selectCellId,2)/resizeImg,num2cell(selectCellId),'TextDensityPercentage',100,'ColorData', [1 1 1], 'FontWeight', 'bold', 'FontSize', 11);
         end
     end
+    hold off
 else
     imshow(imgToShow);
     if selectCellId > 0
