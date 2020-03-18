@@ -17,7 +17,7 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
 
         try
             % Import a single cell
-            [labelledImage] = addCellToImage(round(pixelLocations), labelledImage, numCell);
+            [labelledImage] = addCellToImage(round(pixelLocations(:,[2,1,3])), labelledImage, numCell);
         catch ex
             if isequal(ex.message, 'The alpha shape is empty.')
                 newException = MException(ex.identifier,strcat('There is a cell with no points. Please, check if that cell should have points or, instead, remove the directory: ', cellFiles(numCell).name));
