@@ -69,36 +69,13 @@ sizeResized(3) = originalSize(3);
 setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
 setappdata(0, 'lumenImage_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
 
-% Update handles structure
-guidata(hObject, handles);
-outputDir = getappdata(0,'outputDir');
-imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
-NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
-imageSequenceFiles = imageSequenceFiles(~NoValidFiles);
-imageSequence = [];
 setappdata(0, 'selectedZ', 1);
 setappdata(0, 'cellId', 1);
-
-for numImg = 1:size(imageSequenceFiles, 1)
-    actualFile = imageSequenceFiles(numImg);
-    actualImg = imread(fullfile(actualFile.folder, actualFile.name));
-    %imageSequence(end+1) = {imresize(fliplr(flip(actualImg')), resizeImg, 'nearest')};
-    %imageSequence(end+1) = {imresize(actualImg, resizeImg, 'nearest')};
-    imageSequence(:, :, numImg) = actualImg';
-    %imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
-end
-
-% imageSequence = addTipsImg3D(tipValue+1, imageSequence);
-
-% cmap = jet(max(max(max(getappdata(0, 'labelledImage')))));
-% setappdata(0,'cmap',cmap);
 setappdata(0,'showAllCells',0);
-% imageSequence = imrotate(imageSequence, -glandOrientation);
-
-%orientationGland = regionprops3(imageSequence>0, 'Orientation');
-%glandOrientation = -orientationGland.Orientation(1);
-setappdata(0,'imageSequence',imageSequence);
 setappdata(0,'windowListener',1);
+
+% Update handles structure
+guidata(hObject, handles);
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using window.

@@ -4,8 +4,19 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
 
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
-    
-    
+    %load imageSequence
+    imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
+    NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
+    imageSequenceFiles = imageSequenceFiles(~NoValidFiles);
+    imageSequence = [];
+
+    for numImg = 1:size(imageSequenceFiles, 1)
+        actualFile = imageSequenceFiles(numImg);
+        actualImg = imread(fullfile(actualFile.folder, actualFile.name));
+        imageSequence(:, :, numImg) = actualImg';
+    end
+
+    setappdata(0,'imageSequence',imageSequence);    
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);
