@@ -60,6 +60,7 @@ set(handles.missingApical,'string', strjoin(arrayfun(@num2str, getappdata(0, 'no
 set(handles.missingBasal,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsBasal'), 'UniformOutput', false), ', '))
 
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
+setappdata(0, 'lumenImageTemp', getappdata(0, 'lumenImage'));
 resizeImg = getappdata(0,'resizeImg');
 labelledImage = getappdata(0, 'labelledImage');
 originalSize = size(labelledImage);
@@ -67,7 +68,7 @@ sizeResized = originalSize * resizeImg;
 sizeResized(3) = originalSize(3);
 
 setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
-setappdata(0, 'lumenImage_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
+setappdata(0, 'lumenImageTemp_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
 
 setappdata(0, 'selectedZ', 1);
 setappdata(0, 'cellId', 1);
@@ -112,7 +113,7 @@ if roiMask ~= -1
     newCellRegion = getappdata(0, 'newCellRegion');
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
-    lumenImage = getappdata(0, 'lumenImage');
+    lumenImage = getappdata(0, 'lumenImageTemp');
     
     if sum(newCellRegion(:)) > 0
         %newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
@@ -169,7 +170,7 @@ if roiMask ~= -1
             labelledImage(lumenImage>0) = 0;
         end
         setappdata(0, 'labelledImageTemp', labelledImage);
-        setappdata(0, 'lumenImage', lumenImage);
+        setappdata(0, 'lumenImageTemp', lumenImage);
 
         updateResizedImage();
         pause(2);

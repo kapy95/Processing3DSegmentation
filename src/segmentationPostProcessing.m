@@ -53,7 +53,7 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
 
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
-            lumenImage = getappdata(0, 'lumenImage');
+            lumenImage = getappdata(0, 'lumenImageTemp');
             colours = getappdata(0, 'colours');
 
             close all
