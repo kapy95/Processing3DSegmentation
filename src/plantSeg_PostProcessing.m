@@ -45,9 +45,6 @@ function plantSeg_PostProcessing(outputDir, fileName)
         end
         mkdir([imageSequenceFiles.folder,'\rawImageSequence\'])
         movefile(fname, [imageSequenceFiles.folder,'\rawImageSequence\' imageSequenceFiles.name]);
-    else
-        demoFile =  imageSequenceFiles(3);
-        demoImg = imread(fullfile(demoFile.folder, demoFile.name));
     end
     
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
