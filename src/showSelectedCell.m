@@ -31,7 +31,7 @@ if showAllCells==1
             textscatter(centroids(selectCellId,1)/resizeImg,centroids(selectCellId,2)/resizeImg,num2cell(selectCellId),'TextDensityPercentage',100,'ColorData', [1 1 1], 'FontWeight', 'bold', 'FontSize', 11);
         end
     end
-    hold off
+    %hold off
 else
     imshow(imgToShow);
     if selectCellId > 0
@@ -43,7 +43,7 @@ else
             alpha(s2,.4)
         end
     end
-    hold off
+    hold on
 end
 
 %% Showing lumen
@@ -53,12 +53,13 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     s = scatter(xIndices/resizeImg, yIndices/resizeImg, 'red', 'filled','SizeData',10);
     hold off
     alpha(s,.5)
+    hold on
 end
 
-if exist('YLimOriginal', 'var')
-    set(gca, 'XLim', XLimOriginal);
-    set(gca, 'YLim', YLimOriginal);
-end
+% if exist('YLimOriginal', 'var')
+%     set(gca, 'XLim', XLimOriginal);
+%     set(gca, 'YLim', YLimOriginal);
+% end
 
 end
 

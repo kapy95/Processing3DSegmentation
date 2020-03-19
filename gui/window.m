@@ -177,7 +177,6 @@ if roiMask ~= -1
     end
 end
 close(progressBar)
-zoom(gcf, 'off');
 showSelectedCell();
 
 
@@ -221,7 +220,6 @@ labelledImage = getappdata(0, 'labelledImageTemp');
 newFrameValue = str2double(get(hObject,'String'));
 if newFrameValue > 0 && newFrameValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newFrameValue);
-    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -251,7 +249,6 @@ if roiMask ~= -1
     delete(roiMask);
 end
 try
-    zoom(gcf, 'off');
     roiMask = impoly(gca);
     newCellRegion = createMask(roiMask);
     setappdata(0,'roiMask', roiMask);
@@ -309,7 +306,6 @@ if newValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
-    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -324,7 +320,6 @@ if newValue > 0
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
-    zoom(gcf, 'off');
     showSelectedCell();
 end
 
@@ -461,10 +456,6 @@ if getappdata(0,'windowListener')==1
             showSelectedCell(XLimOriginal, YLimOriginal);
         catch
         end
-    elseif strcmp(eventdata.Source.SelectionType, 'open')
-        zoomFig = zoom(hObject);
-        zoomFig.Enable = 'on';
-        setappdata(0, 'zoomFig', zoomFig);
     end
 end
 
@@ -494,7 +485,6 @@ if strcmp(answer, 'Yes')
     end
     updateResizedImage();
 end
-zoom(gcf, 'off');
 showSelectedCell();
 
 % --- Executes on slider movement.
@@ -505,7 +495,6 @@ function slider1_Callback(hObject, eventdata, handles)
 numZ = round(get(hObject,'Value'));
 setappdata(0, 'selectedZ', numZ);
 set(handles.tbZFrame,'string',num2str(numZ));
-zoom(gcf, 'off');
 showSelectedCell();
 
 % --- Executes during object creation, after setting all properties.
