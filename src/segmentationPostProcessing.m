@@ -63,10 +63,12 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
             save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
     
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(addTipsImg3D(tipValue,labelledImage), addTipsImg3D(tipValue,lumenImage), addTipsImg3D(tipValue,apicalLayer),addTipsImg3D(tipValue,basalLayer), colours, noValidCells);
+            
+            setappdata(0,'labelledImage',labelledImage);
+            setappdata(0,'lumenImage',lumenImage);
         else
             [answer] = isEverythingCorrect();
         end
-        setappdata(0,'labelledImage',labelledImage);
         %volumeViewer close
 
     end
