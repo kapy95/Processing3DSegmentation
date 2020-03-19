@@ -1,4 +1,4 @@
-function [] = showSelectedCell(XLimOriginal, YLimOriginal)
+function [] = showSelectedCell()
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
 selectCellId = getappdata(0, 'cellId');
@@ -56,10 +56,15 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     hold on
 end
 
-% if exist('YLimOriginal', 'var')
-%     set(gca, 'XLim', XLimOriginal);
-%     set(gca, 'YLim', YLimOriginal);
-% end
+%% Showing bakckground
+if getappdata(0, 'showBackground') == 1
+    [xIndices, yIndices] = find(labelledImage_Resized(:, :,  selectedZ)' == 0 & lumenImage(:, :,  selectedZ)' == 0);
+    hold on
+    s = scatter(xIndices/resizeImg, yIndices/resizeImg, 'green', 'filled','SizeData',10);
+    hold off
+    alpha(s,.5)
+    hold on
+end
 
 end
 

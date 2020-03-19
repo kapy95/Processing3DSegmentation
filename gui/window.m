@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 13-Mar-2020 16:53:10
+% Last Modified by GUIDE v2.5 19-Mar-2020 16:14:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,6 +74,7 @@ setappdata(0, 'selectedZ', 1);
 setappdata(0, 'cellId', 1);
 setappdata(0,'showAllCells',0);
 setappdata(0,'windowListener',1);
+setappdata(0, 'showBackground', 0)
 
 % Update handles structure
 guidata(hObject, handles);
@@ -202,10 +203,7 @@ function tbCellId_Callback(hObject, eventdata, handles)
 setappdata(0,'windowListener',1);
 
 setappdata(0,'cellId',str2double(get(hObject,'String')));
-
-XLimOriginal = get(gca, 'XLim');
-YLimOriginal = get(gca, 'YLim');
-showSelectedCell(XLimOriginal, YLimOriginal);
+showSelectedCell();
 
 
 function tbZFrame_Callback(hObject, eventdata, handles)
@@ -271,10 +269,7 @@ labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 if newValue <= max(labelledImage(:))
     setappdata(0, 'cellId', newValue);
     set(handles.tbCellId,'string',num2str(newValue));
-    
-    XLimOriginal = get(gca, 'XLim');
-    YLimOriginal = get(gca, 'YLim');
-    showSelectedCell(XLimOriginal, YLimOriginal);
+    showSelectedCell();
 end
 
 % --- Executes on button press in decreaseID.
@@ -287,10 +282,7 @@ newValue = getappdata(0, 'cellId')-1;
 if newValue >= 0
     setappdata(0, 'cellId', newValue);
     set(handles.tbCellId,'string',num2str(newValue));
-    
-    XLimOriginal = get(gca, 'XLim');
-    YLimOriginal = get(gca, 'YLim');
-    showSelectedCell(XLimOriginal, YLimOriginal);
+    showSelectedCell();
 end
 
 % --- Executes on button press in increaseZ.
@@ -356,9 +348,7 @@ function hideLumen_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'hideLumen', toggleValue)
-XLimOriginal = get(gca, 'XLim');
-YLimOriginal = get(gca, 'YLim');
-showSelectedCell(XLimOriginal, YLimOriginal);
+showSelectedCell();
 
 
 % --- Executes on button press in btRemove.
@@ -428,9 +418,7 @@ function chBoxShowAll_Callback(hObject, eventdata, handles)
     
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'showAllCells', toggleValue)
-XLimOriginal = get(gca, 'XLim');
-YLimOriginal = get(gca, 'YLim');
-showSelectedCell(XLimOriginal, YLimOriginal);
+showSelectedCell();
 
 function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -450,10 +438,8 @@ if getappdata(0,'windowListener')==1
 
             setappdata(0,'cellId',selectedCell);
             set(handles.tbCellId,'string',num2str(selectedCell));
-            
-            XLimOriginal = get(gca, 'XLim');
-            YLimOriginal = get(gca, 'YLim');
-            showSelectedCell(XLimOriginal, YLimOriginal);
+
+            showSelectedCell();
         catch
         end
     end
@@ -513,3 +499,13 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
+
+
+% --- Executes on button press in showBackground.
+function showBackground_Callback(hObject, eventdata, handles)
+% hObject    handle to showBackground (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+toggleValue = get(hObject,'Value') == 1;
+setappdata(0, 'showBackground', toggleValue)
+showSelectedCell();
