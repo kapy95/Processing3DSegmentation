@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 19-Mar-2020 16:59:44
+% Last Modified by GUIDE v2.5 20-Mar-2020 09:34:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -512,4 +512,26 @@ function showBackground_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'showBackground', toggleValue)
+showSelectedCell();
+
+
+% --- Executes on button press in btFillHoles.
+function btFillHoles_Callback(hObject, eventdata, handles)
+% hObject    handle to btFillHoles (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+labelledImage = getappdata(0,'labelledImageTemp');
+lumenImage = getappdata(0,'lumenImageTemp');
+selectedZ = getappdata(0, 'selectedZ');
+labelledImageZ = uint16(labelledImage(:,:,selectedZ));
+lumenImageZ = lumenImage(:,:,selectedZ);
+
+
+mask2Fill = labelledImageZ>0;
+mask2Fill = imfill( mask2Fill ,'holes');
+invalidRegionZ = ~mask2Fill | lumenImageZ;
+ 
+labelledImage(:,:,selectedZ) = fill0sWithCells(labelledImageZ, labelledImageZ, invalidRegionZ);
+setappdata(0,'labelledImageTemp',labelledImage);
+updateResizedImage();
 showSelectedCell();
