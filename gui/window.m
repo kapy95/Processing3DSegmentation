@@ -526,12 +526,10 @@ selectedZ = getappdata(0, 'selectedZ');
 labelledImageZ = uint16(labelledImage(:,:,selectedZ));
 lumenImageZ = lumenImage(:,:,selectedZ);
 
-
-mask2Fill = labelledImageZ>0;
-mask2Fill = imfill( mask2Fill ,'holes');
-invalidRegionZ = ~mask2Fill | lumenImageZ;
+invalidRegionZ = labelledImageZ == 0 & ~lumenImageZ;
+invalidRegionZ = imfill(invalidRegionZ == 0, 'holes') & lumenImageZ == 0;
  
-labelledImage(:,:,selectedZ) = fill0sWithCells(labelledImageZ, labelledImageZ, invalidRegionZ);
+labelledImage(:,:,selectedZ) = fill0sWithCells(labelledImageZ, labelledImageZ, invalidRegionZ == 0);
 setappdata(0,'labelledImageTemp',labelledImage);
 updateResizedImage();
 showSelectedCell();
