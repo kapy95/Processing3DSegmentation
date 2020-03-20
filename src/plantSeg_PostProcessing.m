@@ -66,7 +66,10 @@ function plantSeg_PostProcessing(outputDir, fileName)
         else
             labelledImage = double(tiff_stack);
         end
+        
+        %% Correct outsidegland
         outsideGland = labelledImage == 0;
+        
         
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
             [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
@@ -84,6 +87,9 @@ function plantSeg_PostProcessing(outputDir, fileName)
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
         glandOrientation = -orientationGland.Orientation(1);
+        
+        %labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+        %labelledImage(lumenImage) = 0;
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
