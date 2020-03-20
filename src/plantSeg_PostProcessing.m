@@ -74,22 +74,34 @@ function plantSeg_PostProcessing(outputDir, fileName)
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
             [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         else
-            %%Posible idea: try catch this line and if an error occurs get
-            %%the biggest 'cell' from plantSeg
-            %[labelledImage, lumenImage] = inferLumen(labelledImage);
+            [indx,~] = listdlg('PromptString',{'Lumen selection'},'SelectionMode','single','ListString',{'Select the biggest cell','Draw in matlab'});
+            switch indx                   
+                case 1
+                    %%Posible idea: try catch this line and if an error occurs get
+                    %%the biggest 'cell' from plantSeg
+                    %[labelledImage, lumenImage] = inferLumen(labelledImage);
+
+                    [cellsVolume] = regionprops3(labelledImage, 'Volume');
+                    [~, lumenIndex] = max(table2array(cellsVolume));
+                    lumenImage = labelledImage == lumenIndex;
+                    labelledImage(labelledImage == lumenIndex) = 0;
+                case 2
+                    lumenImage = zeros(size(labelledImage));
+            end
             
-            [cellsVolume] = regionprops3(labelledImage, 'Volume');
-            [~, lumenIndex] = max(table2array(cellsVolume));
-            lumenImage = labelledImage == lumenIndex;
-            labelledImage(labelledImage == lumenIndex) = 0;
         end
-            
-        %% Put both lumen and labelled image at a 90 degrees
-        orientationGland = regionprops3(lumenImage>0, 'Orientation');
-        glandOrientation = -orientationGland.Orientation(1);
         
         %labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
         %labelledImage(lumenImage) = 0;
+        
+        idLumen = unique(lumenImage(:,:,:));
+        if ismember(idLumen,1)
+            %% Put both lumen and labelled image at a 90 degrees
+            orientationGland = regionprops3(lumenImage>0, 'Orientation');
+            glandOrientation = -orientationGland.Orientation(1);
+        else
+            glandOrientation = 0;
+        end
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end

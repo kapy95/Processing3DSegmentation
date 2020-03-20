@@ -18,6 +18,8 @@ switch indx
         if isempty(selpath) == 0
             plantSeg_PostProcessing(selpath, fileName);
         end
+    otherwise
+        
 end
 
 
