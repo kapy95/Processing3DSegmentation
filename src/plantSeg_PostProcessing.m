@@ -67,9 +67,6 @@ function plantSeg_PostProcessing(outputDir, fileName)
             labelledImage = double(tiff_stack);
         end
         
-        %% Correct outsidegland
-        outsideGland = labelledImage == 0;
-        
         
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
             [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
@@ -91,8 +88,14 @@ function plantSeg_PostProcessing(outputDir, fileName)
             
         end
         
-        %labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
-        %labelledImage(lumenImage) = 0;
+        % Keep only the biggest object
+        objectsImage = bwlabeln(labelledImage>0);
+        objectsVolume = regionprops3(objectsImage, 'Volume');
+        [~, biggestObject] = max(table2array(objectsVolume));
+        labelledImage(objectsImage ~= biggestObject) = 0;
+        outsideGland = getOutsideGland(labelledImage);
+        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+        labelledImage(lumenImage) = 0;
         
         idLumen = unique(lumenImage(:,:,:));
         if ismember(idLumen,1)
