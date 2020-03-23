@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 20-Mar-2020 09:34:01
+% Last Modified by GUIDE v2.5 23-Mar-2020 15:47:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -532,4 +532,35 @@ invalidRegionZ = imfill(invalidRegionZ == 0, 'holes') & lumenImageZ == 0;
 labelledImage(:,:,selectedZ) = fill0sWithCells(labelledImageZ, labelledImageZ, invalidRegionZ == 0);
 setappdata(0,'labelledImageTemp',labelledImage);
 updateResizedImage();
+showSelectedCell();
+
+
+% --- Executes on button press in btMaintainBigObject.
+function btMaintainBigObject_Callback(hObject, eventdata, handles)
+% hObject    handle to btMaintainBigObject (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+labelledImageResized = getappdata(0,'labelledImageTemp_Resized');
+labelledImage = getappdata(0,'labelledImageTemp');
+progressBar = waitbar(0, 'Removing splitted objects', 'WindowStyle', 'modal');
+
+uniqIds = unique(labelledImageResized);
+uniqIds = uniqIds(2:end);
+
+for idCell = uniqIds'
+    mask3dResized = labelledImageResized == idCell;
+    vol = regionprops3(mask3dResized,'Volume');
+    % Update waitbar and message
+    waitbar(idCell/max(uniqIds))
+    if size(vol,1)>1
+        mask3d = labelledImage == idCell;
+        vol = regionprops3(mask3d,'Volume');
+        [~,idx] = max(vol.Volume);
+        labelledImage(mask3d) = 0;
+        labelledImage(bwlabeln(mask3d) == idx) = idCell;
+    end
+end
+setappdata(0,'labelledImageTemp',labelledImage)
+updateResizedImage();
+close(progressBar)
 showSelectedCell();
