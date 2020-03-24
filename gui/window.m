@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 23-Mar-2020 15:47:26
+% Last Modified by GUIDE v2.5 24-Mar-2020 10:38:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -554,13 +554,71 @@ for idCell = uniqIds'
     waitbar(idCell/max(uniqIds))
     if size(vol,1)>1
         mask3d = labelledImage == idCell;
+        mask3d = bwlabeln(mask3d);
         vol = regionprops3(mask3d,'Volume');
         [~,idx] = max(vol.Volume);
-        labelledImage(mask3d) = 0;
-        labelledImage(bwlabeln(mask3d) == idx) = idCell;
+        labelledImage(mask3d>0) = 0;
+        labelledImage(mask3d == idx) = idCell;
     end
 end
 setappdata(0,'labelledImageTemp',labelledImage)
 updateResizedImage();
 close(progressBar)
 showSelectedCell();
+
+
+% --- Executes on button press in btInterpolate3Dcell.
+function btInterpolate3Dcell_Callback(hObject, eventdata, handles)
+% hObject    handle to btInterpolate3Dcell (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+labelledImage = getappdata(0,'labelledImageTemp');
+lumenImage = getappdata(0,'lumenImageTemp');
+cellID = getappdata(0, 'cellId');
+invalidRegion = labelledImage == 0 & ~lumenImage;
+progressBar = waitbar(0, 'Interpolating 3D cell', 'WindowStyle', 'modal');
+invalidRegion = imfill(invalidRegion == 0, 18 , 'holes') & lumenImage == 0;
+waitbar(0.2)
+if cellID>0
+    if getappdata(0, 'canModifyOutsideGland') == 1
+       invalidRegion(labelledImage == 0) = 0;
+    end
+    if getappdata(0, 'canModifyInsideLumen') == 1
+       invalidRegion(lumenImage == 0) = 0;
+    end
+
+    maskCell3D = labelledImage == cellID;
+    idx = find(maskCell3D); 
+    [x,y,z] = ind2sub(size(maskCell3D), idx);
+    shp = alphaShape(x,y,z);
+    pc = criticalAlpha(shp,'one-region');
+    shp.Alpha = pc;
+    waitbar(0.4)
+    maskCell3D = maskCell3D.*cellID;
+    boundBox = regionprops3(maskCell3D, 'BoundingBox');
+    boundBox = boundBox.BoundingBox(cellID,:);
+    
+    allX = round([boundBox(1):boundBox(1)+boundBox(4)]);
+    allY = round([boundBox(2):boundBox(2)+boundBox(5)]);
+    allZ = round([boundBox(3):boundBox(3)+boundBox(6)]);
+    maskOnes = zeros(size(maskCell3D));
+    maskOnes(allY,allX,allZ) = 1;
+    idBoundBox = find(maskOnes);
+
+    [qx,qy,qz] = ind2sub(size(maskCell3D), idBoundBox);
+    waitbar(0.5)
+    tf = inShape(shp,qx,qy,qz);
+    waitbar(0.8)
+    idBoundBox = idBoundBox(tf==1);
+    maskCell3D(idBoundBox) = cellID;
+    maskCell3D(invalidRegion) = 0;
+
+    labelledImage(maskCell3D>0) = cellID;
+    setappdata(0,'labelledImageTemp',labelledImage);
+    waitbar(0.9)
+    updateResizedImage();
+    showSelectedCell();
+    waitbar(1)
+    close(progressBar)
+
+end
