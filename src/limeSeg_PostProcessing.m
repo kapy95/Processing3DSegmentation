@@ -55,7 +55,13 @@ function limeSeg_PostProcessing(outputDir)
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
             [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         else
-            [labelledImage, lumenImage] = inferLumen(labelledImage);
+            [indx,~] = listdlg('PromptString',{'Lumen selection'},'SelectionMode','single','ListString',{'Infer lumen','Draw in matlab'});
+            switch indx                   
+                case 1
+                    [labelledImage, lumenImage] = inferLumen(labelledImage);
+                case 2
+                    lumenImage = zeros(size(labelledImage));
+            end
         end
      
         %It add pixels and remove some
@@ -63,15 +69,25 @@ function limeSeg_PostProcessing(outputDir)
         %outsideGland = validRegion == 0;
         questionedRegion = imdilate(outsideGland, strel('sphere', 2));
         outsideGland(questionedRegion) = ~validRegion(questionedRegion);
-        outsideGland(lumenImage) = 0;
-        
-        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
-            
         %% Put both lumen and labelled image at a 90 degrees
-        orientationGland = regionprops3(lumenImage>0, 'Orientation');
-        glandOrientation = -orientationGland.Orientation(1);
-        %labelledImage = imrotate(labelledImage, glandOrientation);
-        %lumenImage = imrotate(lumenImage, glandOrientation);
+        if sum(lumenImage(:))>0
+            outsideGland(lumenImage) = 0;
+
+            orientationGland = regionprops3(lumenImage>0, 'Orientation');
+            glandOrientation = -orientationGland.Orientation(1);
+            %labelledImage = imrotate(labelledImage, glandOrientation);
+            %lumenImage = imrotate(lumenImage, glandOrientation);
+        else
+            glandOrientation=0;
+        end      
+        
+        answer = questdlg('Would you fill empty space with cell labels?', 'yes', 'no');
+        
+        % Handle response
+        switch answer
+            case 'yes'
+                labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+        end           
         
         labelledImage = addTipsImg3D(-tipValue,labelledImage);
         outsideGland = addTipsImg3D(-tipValue,outsideGland);
