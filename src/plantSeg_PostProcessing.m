@@ -89,13 +89,14 @@ function plantSeg_PostProcessing(outputDir, fileName)
         end
         
         % Keep only the biggest object
-        objectsImage = bwlabeln(labelledImage>0);
-        objectsVolume = regionprops3(objectsImage, 'Volume');
-        [~, biggestObject] = max(table2array(objectsVolume));
-        labelledImage(objectsImage ~= biggestObject) = 0;
-        outsideGland = getOutsideGland(labelledImage);
-        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
-        labelledImage(lumenImage) = 0;
+%         objectsImage = bwlabeln(labelledImage>0);
+%         objectsVolume = regionprops3(objectsImage, 'Volume');
+%         [~, biggestObject] = max(table2array(objectsVolume));
+%         labelledImage(objectsImage ~= biggestObject) = 0;
+%         outsideGland = getOutsideGland(labelledImage);
+          outsideGland = labelledImage == 0;
+%         labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+%         labelledImage(lumenImage) = 0;
         
         idLumen = unique(lumenImage(:,:,:));
         if ismember(idLumen,1)
