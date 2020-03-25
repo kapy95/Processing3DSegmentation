@@ -14,19 +14,20 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
         pixelLocations = double(ptCloud.Location);
         pixelLocations(:,1:2) = pixelLocations(:,1:2).*resizeImg;
         pixelLocations(:,3) = pixelLocations(:,3)./zScale;
-
-        try
-            % Import a single cell
-            [labelledImage] = addCellToImage(round(pixelLocations(:,[2,1,3])), labelledImage, numCell);
-        catch ex
-            if isequal(ex.message, 'The alpha shape is empty.')
-                newException = MException(ex.identifier,strcat('There is a cell with no points. Please, check if that cell should have points or, instead, remove the directory: ', cellFiles(numCell).name));
-                throwAsCaller(newException);
-            else
-                throw(ex)
+        
+        if ~isempty(pixelLocations)
+            try
+                % Import a single cell
+                [labelledImage] = addCellToImage(round(pixelLocations(:,[2,1,3])), labelledImage, numCell);
+            catch ex
+                if isequal(ex.message, 'The alpha shape is empty.')
+                    newException = MException(ex.identifier,strcat('There is a cell with no points. Please, check if that cell should have points or, instead, remove the directory: ', cellFiles(numCell).name));
+                    throwAsCaller(newException);
+                else
+                    throw(ex)
+                end
             end
         end
-        
 %         [x,y,z] = ind2sub(size(labelledImage),find(labelledImage>0));
 %         pcshow(ptCloud);
     end
