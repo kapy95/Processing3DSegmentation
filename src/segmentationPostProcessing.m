@@ -76,10 +76,10 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
     %% Save apical and basal 3d information
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
-    %% Export to excel cellular features
-    cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,addTipsImg3D(tipValue,labelledImage),noValidCells,validCells,outputDir);
-    
-    save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), 'cellularFeatures'); 
+%     %% Export to excel cellular features
+%     cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,addTipsImg3D(tipValue,labelledImage),noValidCells,validCells,outputDir);
+%     
+%     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), 'cellularFeatures'); 
 
 
 
