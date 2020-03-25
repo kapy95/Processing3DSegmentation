@@ -81,7 +81,7 @@ function limeSeg_PostProcessing(outputDir)
             glandOrientation=0;
         end      
         
-        answer = questdlg('Would you fill empty space with cell labels?', 'yes', 'no');
+        answer = questdlg('Would you fill empty space with cell labels?','Choose', 'yes', 'no');
         
         % Handle response
         switch answer
