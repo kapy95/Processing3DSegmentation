@@ -594,26 +594,26 @@ if cellID>0
     pc = criticalAlpha(shp,'one-region');
     shp.Alpha = pc;
     waitbar(0.4)
-    maskCell3D = maskCell3D.*cellID;
-    boundBox = regionprops3(maskCell3D, 'BoundingBox');
+    maskCell3Duint16 = uint16(maskCell3D).*uint16(cellID);
+    boundBox = regionprops3(maskCell3Duint16, 'BoundingBox');
     boundBox = boundBox.BoundingBox(cellID,:);
     
     allX = round([boundBox(1):boundBox(1)+boundBox(4)]);
     allY = round([boundBox(2):boundBox(2)+boundBox(5)]);
     allZ = round([boundBox(3):boundBox(3)+boundBox(6)]);
-    maskOnes = zeros(size(maskCell3D));
+    maskOnes = zeros(size(maskCell3Duint16));
     maskOnes(allY,allX,allZ) = 1;
     idBoundBox = find(maskOnes);
 
-    [qx,qy,qz] = ind2sub(size(maskCell3D), idBoundBox);
+    [qx,qy,qz] = ind2sub(size(maskCell3Duint16), idBoundBox);
     waitbar(0.5)
     tf = inShape(shp,qx,qy,qz);
     waitbar(0.8)
     idBoundBox = idBoundBox(tf==1);
-    maskCell3D(idBoundBox) = cellID;
-    maskCell3D(invalidRegion) = 0;
+    maskCell3Duint16(idBoundBox) = cellID;
+    maskCell3Duint16(invalidRegion) = 0;
 
-    labelledImage(maskCell3D>0) = cellID;
+    labelledImage(maskCell3Duint16>0) = cellID;
     setappdata(0,'labelledImageTemp',labelledImage);
     waitbar(0.9)
     updateResizedImage();
