@@ -5,7 +5,7 @@ function plantSeg_PostProcessing(outputDir, fileName)
     mkdir(fullfile(outputDir, 'ImageSequence'));
     mkdir(fullfile(outputDir, 'Lumen', 'SegmentedLumen'));
     mkdir(fullfile(outputDir, 'Results'));
-    mkdir(fullfile(outputDir, 'Apical_Labelled'));
+    mkdir(fullfile(outputDir, 'ApicalAndBasal_Labelled'));
 
 
     if exist(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'file') == 0
