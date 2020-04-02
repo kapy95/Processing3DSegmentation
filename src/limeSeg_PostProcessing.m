@@ -94,9 +94,8 @@ function limeSeg_PostProcessing(outputDir)
         answer = questdlg('Would you fill empty space with cell labels?','Choose', 'yes', 'no', 'no');
         
         % Handle response
-        switch answer
-            case 'yes'
-                labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+        if strcmp(answer, 'yes')
+            labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
         end
         
         labelledImage = addTipsImg3D(-tipValue,labelledImage);
