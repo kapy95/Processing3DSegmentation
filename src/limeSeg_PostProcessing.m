@@ -29,7 +29,7 @@ function limeSeg_PostProcessing(outputDir)
     resizeImg = 0.25;
 
     tipValue = 5;
-
+    
     imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
     imageSequenceFiles=imageSequenceFiles(~NoValidFiles);
@@ -44,31 +44,41 @@ function limeSeg_PostProcessing(outputDir)
     end
     imgSize = size(imageSequence);
     imgSize(1:2)= imgSize(1:2).*resizeImg;
-    %imgSize = size(imresize(demoImg, resizeImg));
 
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
-        [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, zScale, tipValue);
         
-        if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
-            [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        else
-            [indx,~] = listdlg('PromptString',{'Lumen selection'},'SelectionMode','single','ListString',{'Infer lumen','Draw in matlab'});
-            switch indx                   
-                case 1
-                    [labelledImage, lumenImage] = inferLumen(labelledImage);
-                case 2
-                    lumenImage = zeros(size(labelledImage));
-            end
+        [labelledImage] = processCells(fullfile(outputDir, 'Cells', 'OutputLimeSeg'), resizeImg, imgSize, zScale, tipValue);
+        
+
+        [indx,~] = listdlg('PromptString',{'Lumen selection'},'SelectionMode','single','ListString',{'Infer lumen','Draw in matlab', 'LimeSeg lumen', 'Photoshop lumen'});
+        switch indx
+            case 1
+                [labelledImage, lumenImage] = inferLumen(labelledImage);
+            case 2
+                lumenImage = zeros(size(labelledImage));
+            case 3
+                lumenImage = processCells(fullfile(outputDir, 'Lumen', 'SegmentedLumen'), resizeImg, imgSize, zScale, tipValue)>0;
+                labelledImage(lumenImage) = 0;
+            case 4
+                [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         end
-     
-        %It add pixels and remove some
-        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
-        %outsideGland = validRegion == 0;
-        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
-        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        
+        try
+            outsideGland = double(processCells(fullfile(outputDir, 'OutsideGland'), resizeImg, imgSize, zScale, tipValue)) == 0;
+            labelledImage(outsideGland) = 0;
+        catch ex
+            %% Get invalid region
+            [outsideGland] = getOutsideGland(labelledImage);
+            %It add pixels and remove some
+            validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
+            %outsideGland = validRegion == 0;
+            questionedRegion = imdilate(outsideGland, strel('sphere', 2));
+            outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        end
+        
         %% Put both lumen and labelled image at a 90 degrees
         if sum(lumenImage(:))>0
             outsideGland(lumenImage) = 0;
@@ -87,7 +97,7 @@ function limeSeg_PostProcessing(outputDir)
         switch answer
             case 'yes'
                 labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
-        end           
+        end
         
         labelledImage = addTipsImg3D(-tipValue,labelledImage);
         outsideGland = addTipsImg3D(-tipValue,outsideGland);

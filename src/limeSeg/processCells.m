@@ -1,9 +1,9 @@
-function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeImg, imgSize, zScale, tipValue)
+function [labelledImage] = processCells(directoryOfCells, resizeImg, imgSize, zScale, tipValue)
 %PROCESSCELLS Obtain cells from output limeSeg
 %   Import the point cloud of cells to create a 3D image (as a 3D matrix)
 %   that will allow to use it here on Matlab.
 
-    cellFiles = dir(fullfile(directoryOfCells, 'OutputLimeSeg', 'cell_*'));
+    cellFiles = dir(fullfile(directoryOfCells, 'cell_*'));
     
     labelledImage = zeros(imgSize);
 
@@ -52,9 +52,6 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
     
     labelledImage = addTipsImg3D(tipValue, labelledImage);
 %     labelledImage = double(labelledImage);
-    
-    %% Get invalid region
-    [outsideGland] = getOutsideGland(labelledImage);
 %     
 %     % HERE WE CHANGE THE LABELS OF LABELLED IMAGE (CARE)
 %     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland);
