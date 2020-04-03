@@ -5,6 +5,12 @@ function [labelledImage] = processCells(directoryOfCells, resizeImg, imgSize, zS
 
     cellFiles = dir(fullfile(directoryOfCells, 'cell_*'));
     
+    if size(cellFiles, 1) == 0
+        ME = MException('MyComponent:noCells', ...
+        'No cells were found');
+        throw(ME)
+    end
+    
     labelledImage = zeros(imgSize);
 
 %     figure;
