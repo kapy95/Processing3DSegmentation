@@ -1,4 +1,4 @@
-function updateResizedImage(hObject, handles)
+function handles = updateResizedImage(hObject, handles)
 %UPDATERESIZEDIMAGE Summary of this function goes here
 %   Detailed explanation goes here
     labelledImage = handles.labelledImageTemp;

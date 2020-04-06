@@ -204,13 +204,11 @@ if roiMask ~= -1
         handles.lumenImageTemp = lumenImage;
         % Update handles structure
         guidata(hObject, handles);
-        updateResizedImage(hObject, handles);
+        handles = updateResizedImage(hObject, handles);
         pause(2);
     end
 end
 close(progressBar)
-% Update handles structure
-guidata(hObject, handles);
 showSelectedCell(handles);
 
 
@@ -423,7 +421,7 @@ if strcmp(answer, 'Yes')
         lumenImage(lumenImage == 1) = 0;
         handles.lumenImageTemp = lumenImage;
     end
-    updateResizedImage(hObject, handles);
+    handles = updateResizedImage(hObject, handles);
 end
 showSelectedCell(handles);
 % Update handles structure
