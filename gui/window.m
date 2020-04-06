@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 24-Mar-2020 10:38:36
+% Last Modified by GUIDE v2.5 03-Apr-2020 13:40:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -50,31 +50,58 @@ function window_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to window (see VARARGIN)
+% imageSequence (1), outputDir (2), labelledImage (3), lumenImage (4),
+% resizeImg (5), tipValue (6), glandOrientation(7), colours(8),
+% notFoundCellsApical(9), notFoundCellsBasal(10)
 
 % Choose default command line output for window
 handles.output = hObject;
+handles.closing = 0;
 
 set(0, 'currentfigure', hObject); 
 
-set(handles.missingApical,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsApical'), 'UniformOutput', false), ', '));
-set(handles.missingBasal,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsBasal'), 'UniformOutput', false), ', '))
+set(handles.missingApical,'string', strjoin(arrayfun(@num2str, varargin{9}, 'UniformOutput', false), ', '));
+set(handles.missingBasal,'string', strjoin(arrayfun(@num2str,varargin{10}, 'UniformOutput', false), ', '))
 
-setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
-setappdata(0, 'lumenImageTemp', getappdata(0, 'lumenImage'));
-resizeImg = getappdata(0,'resizeImg');
-labelledImage = getappdata(0, 'labelledImage');
+handles.imageSequence = varargin{1};
+handles.outputDir = varargin{2};
+handles.labelledImageTemp = varargin{3};
+handles.lumenImageTemp = varargin{4};
+handles.labelledImage = varargin{3};
+handles.lumenImage = varargin{4};
+handles.resizeImg = varargin{5};
+handles.tipValue = varargin{6};
+handles.glandOrientation = varargin{7};
+handles.colours = varargin{8};
+
+labelledImage = varargin{3};
+resizeImg = varargin{5};
 originalSize = size(labelledImage);
 sizeResized = originalSize * resizeImg;
 sizeResized(3) = originalSize(3);
 
-setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
-setappdata(0, 'lumenImageTemp_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
+handles.labelledImageTemp_Resized = imresize3(labelledImage, sizeResized, 'nearest');
+handles.lumenImageTemp_Resized = imresize3(double(varargin{4}), sizeResized, 'nearest')>0;
 
-setappdata(0, 'selectedZ', 1);
-setappdata(0, 'cellId', 1);
-setappdata(0,'showAllCells',0);
-setappdata(0,'windowListener',1);
-setappdata(0, 'showBackground', 0)
+handles.selectedZ = 1;
+handles.cellId = 1;
+handles.showAllCells = 0;
+handles.windowListener = 1;
+handles.showBackground = 0;
+handles.roiMask = -1;
+handles.canModifyOutsideGland = 0;
+
+%% Output
+handles.labelledImage = varargin{3};
+handles.lumenImage = varargin{4};
+handles.colours = varargin{8};
+
+%% GUI
+imageSequence = handles.imageSequence;
+set(handles.slider1,'Max',size(imageSequence,3));
+set(handles.slider1,'Value',1);
+set(handles.slider1,'Min',1);
+set(handles.slider1,'SliderStep',[1 1]./(size(imageSequence,3)-1));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -82,7 +109,7 @@ guidata(hObject, handles);
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using window.
 if strcmp(get(hObject,'Visible'),'off')
-    showSelectedCell()
+    showSelectedCell(handles)
 end
 
 % UIWAIT makes window wait for user response (see UIRESUME)
@@ -98,32 +125,35 @@ function varargout = window_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+varargout{2} = handles.labelledImage;
+varargout{3} = handles.lumenImage;
+varargout{4} = handles.colours;
 
 % --- Executes on button press in save.
 function save_Callback(hObject, eventdata, handles)
 % hObject    handle to save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-roiMask = getappdata(0, 'roiMask');
+roiMask = handles.roiMask;
 progressBar = waitbar(0, 'Saving... Please wait', 'WindowStyle', 'modal');
 if roiMask ~= -1
     delete(roiMask);
     roiMask = -1;
-    setappdata(0, 'roiMask', roiMask);
-    labelledImage = getappdata(0, 'labelledImageTemp');
-    newCellRegion = getappdata(0, 'newCellRegion');
-    selectCellId = getappdata(0, 'cellId');
-    selectedZ = getappdata(0, 'selectedZ');
-    lumenImage = getappdata(0, 'lumenImageTemp');
+    handles.roiMask = roiMask;
+    labelledImage = handles.labelledImageTemp;
+    newCellRegion = handles.newCellRegion;
+    selectCellId = handles.cellId;
+    selectedZ = handles.selectedZ;
+    lumenImage = handles.lumenImageTemp;
     
     if sum(newCellRegion(:)) > 0
         %newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
         insideGland = newCellRegion>-1;
-        if getappdata(0, 'canModifyOutsideGland') == 0
+        if handles.canModifyOutsideGland == 0
             insideGland = insideGland & labelledImage(:,:,selectedZ) > 0;
         end
         %% The order is important here: Because the lumen is already 0 on the labelled image
-        if getappdata(0, 'canModifyInsideLumen') == 1
+        if handles.canModifyInsideLumen == 1
             insideGland(lumenImage(:,:,selectedZ) == 1) = 1;
         else
             insideGland(lumenImage(:,:,selectedZ) == 1) = 0;
@@ -152,15 +182,15 @@ if roiMask ~= -1
             else % Add cell
                 [x, y] = find(newCellRegion);
                 
-                colours = getappdata(0, 'colours');
+                colours = handles.colours;
                 newColours = colorcube(255);
                 colours(end+1, :) = newColours(randi(255), :);
-                setappdata(0, 'colours', colours);
+                handles.colours = colours;
             end
             
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
             labelledImage(newIndices) = selectCellId;
-            if getappdata(0, 'canModifyInsideLumen') == 1
+            if handles.canModifyInsideLumen == 1
                 lumenImage(newIndices) = 0;
             end
         else
@@ -170,15 +200,18 @@ if roiMask ~= -1
             lumenImage(newIndices) = 1;
             labelledImage(lumenImage>0) = 0;
         end
-        setappdata(0, 'labelledImageTemp', labelledImage);
-        setappdata(0, 'lumenImageTemp', lumenImage);
-
-        updateResizedImage();
+        handles.labelledImageTemp = labelledImage;
+        handles.lumenImageTemp = lumenImage;
+        % Update handles structure
+        guidata(hObject, handles);
+        updateResizedImage(hObject, handles);
         pause(2);
     end
 end
 close(progressBar)
-showSelectedCell();
+% Update handles structure
+guidata(hObject, handles);
+showSelectedCell(handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -200,10 +233,12 @@ function tbCellId_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of tbZFrame as text
 %        str2double(get(hObject,'String')) returns contents of tbZFrame as a double
-setappdata(0,'windowListener',1);
+handles.windowListener = 1;
+handles.cellId = str2double(get(hObject,'String'));
+% Update handles structure
+guidata(hObject, handles);
 
-setappdata(0,'cellId',str2double(get(hObject,'String')));
-showSelectedCell();
+showSelectedCell(handles);
 
 
 function tbZFrame_Callback(hObject, eventdata, handles)
@@ -213,12 +248,14 @@ function tbZFrame_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of tbZFrame as text
 %        str2double(get(hObject,'String')) returns contents of tbZFrame as a double
-setappdata(0,'windowListener',1);
-labelledImage = getappdata(0, 'labelledImageTemp');
+handles.windowListener = 1;
+labelledImage = handles.labelledImageTemp;
 newFrameValue = str2double(get(hObject,'String'));
 if newFrameValue > 0 && newFrameValue <= size(labelledImage, 3)
-    setappdata(0, 'selectedZ', newFrameValue);
-    showSelectedCell();
+    handles.selectedZ = newFrameValue;
+    % Update handles structure
+    guidata(hObject, handles);
+    showSelectedCell(handles);
 end
 
 
@@ -240,21 +277,25 @@ function insertROI_Callback(hObject, eventdata, handles)
 % hObject    handle to insertROI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(0,'windowListener',0);
+handles.windowListener = 0;
+% Update handles structure
+guidata(hObject, handles);
 
-roiMask = getappdata(0, 'roiMask');
+roiMask = handles.roiMask;
 if roiMask ~= -1
     delete(roiMask);
 end
 try
     roiMask = impoly(gca);
     newCellRegion = createMask(roiMask);
-    setappdata(0,'roiMask', roiMask);
-    setappdata(0,'newCellRegion', newCellRegion);
+    handles.roiMask = roiMask;
+    handles.newCellRegion = newCellRegion;
 catch
     disp('ROI cancelled')
 end
-setappdata(0,'windowListener',1);
+handles.windowListener = 1;
+% Update handles structure
+guidata(hObject, handles);
 
 
 % --- Executes on button press in increaseID.
@@ -262,59 +303,68 @@ function increaseID_Callback(hObject, eventdata, handles)
 % hObject    handle to increaseID (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(0,'windowListener',1);
-newValue = getappdata(0, 'cellId')+1;
-labelledImage = getappdata(0, 'labelledImageTemp_Resized');
+handles.windowListener = 1;
+newValue = handles.cellId+1;
+labelledImage = handles.labelledImageTemp_Resized;
 
 if newValue <= max(labelledImage(:))
-    setappdata(0, 'cellId', newValue);
+    handles.cellId = newValue;
     set(handles.tbCellId,'string',num2str(newValue));
-    showSelectedCell();
+    showSelectedCell(handles);
 end
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in decreaseID.
 function decreaseID_Callback(hObject, eventdata, handles)
 % hObject    handle to decreaseID (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(0,'windowListener',1);
-newValue = getappdata(0, 'cellId')-1;
+handles.windowListener = 1;
+newValue = handles.cellId-1;
 if newValue >= 0
-    setappdata(0, 'cellId', newValue);
+    handles.cellId = newValue;
     set(handles.tbCellId,'string',num2str(newValue));
-    showSelectedCell();
+    % Update handles structure
+    guidata(hObject, handles);
+    showSelectedCell(handles);
 end
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in increaseZ.
 function increaseZ_Callback(hObject, eventdata, handles)
 % hObject    handle to increaseZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(0,'windowListener',1);
-newValue = getappdata(0, 'selectedZ')+1;
-labelledImage = getappdata(0, 'labelledImageTemp_Resized');
+handles.windowListener = 1;
+newValue = handles.selectedZ+1;
+labelledImage = handles.labelledImageTemp_Resized;
 
 if newValue <= size(labelledImage, 3)
-    setappdata(0, 'selectedZ', newValue);
+    handles.selectedZ = newValue;
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
-    showSelectedCell();
+    showSelectedCell(handles);
 end
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in decreaseZ.
 function decreaseZ_Callback(hObject, eventdata, handles)
 % hObject    handle to decreaseZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-setappdata(0,'windowListener',1);
-newValue = getappdata(0, 'selectedZ')-1;
+handles.windowListener = 1;
+newValue = handles.selectedZ-1;
 if newValue > 0
-    setappdata(0, 'selectedZ', newValue);
+    handles.selectedZ = newValue;
     set(handles.tbZFrame,'string',num2str(newValue));
     set(handles.slider1,'Value', newValue);
-    showSelectedCell();
+    showSelectedCell(handles);
 end
-
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in modifyOutside.
 function modifyOutside_Callback(hObject, eventdata, handles)
@@ -323,9 +373,9 @@ function modifyOutside_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of modifyOutside
-toggleValue = get(hObject,'Value') == 1;
-
-setappdata(0, 'canModifyOutsideGland', toggleValue)
+handles.canModifyOutsideGland = get(hObject,'Value') == 1;
+% Update handles structure
+guidata(hObject, handles);
 
 
 % --- Executes on button press in hideLumen.
@@ -335,8 +385,9 @@ function modifyInsideLumen_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of hideLumen
-toggleValue = get(hObject,'Value') == 1;
-setappdata(0, 'canModifyInsideLumen', toggleValue)
+handles.canModifyInsideLumen = get(hObject,'Value') == 1;
+% Update handles structure
+guidata(hObject, handles);
 
 
 % --- Executes on button press in modifyInsideLumen.
@@ -346,9 +397,10 @@ function hideLumen_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
-toggleValue = get(hObject,'Value') == 1;
-setappdata(0, 'hideLumen', toggleValue)
-showSelectedCell();
+handles.hideLumen = get(hObject,'Value') == 1;
+showSelectedCell(handles);
+% Update handles structure
+guidata(hObject, handles);
 
 
 % --- Executes on button press in btRemove.
@@ -356,35 +408,38 @@ function btRemove_Callback(hObject, eventdata, handles)
 % hObject    handle to btRemove (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-cellId = getappdata(0, 'cellId');
+cellId = handles.cellId;
 
-    answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , '?'], ...
-        'Remove cell', ...
-        'Yes','No', 'No');
-    if strcmp(answer, 'Yes')
-        if cellId > 0
-            labelledImage = getappdata(0, 'labelledImageTemp');
-            labelledImage(labelledImage == cellId) = 0;
-            setappdata(0, 'labelledImageTemp', labelledImage);
-        else
-            lumenImage = getappdata(0, 'lumenImageTemp');
-            lumenImage(lumenImage == 1) = 0;
-            setappdata(0, 'lumenImageTemp', lumenImage);
-        end
-        updateResizedImage();
+answer = questdlg(['Are you sure to remove cell ', num2str(handles.cellId) , '?'], ...
+    'Remove cell', ...
+    'Yes','No', 'No');
+if strcmp(answer, 'Yes')
+    if cellId > 0
+        labelledImage = handles.labelledImageTemp;
+        labelledImage(labelledImage == cellId) = 0;
+        handles.labelledImageTemp = labelledImage;
+    else
+        lumenImage = handles.lumenImageTemp;
+        lumenImage(lumenImage == 1) = 0;
+        handles.lumenImageTemp = lumenImage;
     end
-
-showSelectedCell();
+    updateResizedImage(hObject, handles);
+end
+showSelectedCell(handles);
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in btAddCell.
 function btAddCell_Callback(hObject, eventdata, handles)
 % hObject    handle to btAddCell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = handles.labelledImageTemp;
 newValue = max(labelledImage(:)) + 1;
-setappdata(0, 'cellId', newValue);
+handles.cellId = newValue;
 set(handles.tbCellId,'string',num2str(newValue));
+% Update handles structure
+guidata(hObject, handles);
 insertROI_Callback(hObject, eventdata, handles)
 
 
@@ -394,7 +449,7 @@ function btMergeCells_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = handles.labelledImageTemp;
 
 prompt = {'Enter cells to be merged (comma-separated): E.g. 20,25'};
 title = 'Input';
@@ -406,9 +461,11 @@ if isempty(answer) == 0
     cellsToMerge = cellfun(@str2double, cellsToMergeStr);
     if length(cellsToMerge) > 1
         labelledImageTmp = mergeLabelsOfImage(labelledImage, cellsToMerge);
-        setappdata(0, 'labelledImageTemp', labelledImageTmp);
-        updateResizedImage();
-        showSelectedCell();
+        handles.labelledImageTemp = labelledImageTmp;
+        % Update handles structure
+        guidata(hObject, handles);
+        updateResizedImage(hObject, handles);
+        showSelectedCell(handles);
     else
         errordlg('You should add more than 1 cell label', 'MEC!');
     end
@@ -419,31 +476,33 @@ function chBoxShowAll_Callback(hObject, eventdata, handles)
 % hObject    handle to chBoxShowAll (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    
-toggleValue = get(hObject,'Value') == 1;
-setappdata(0, 'showAllCells', toggleValue)
-showSelectedCell();
+handles.showAllCells = get(hObject,'Value') == 1;
+% Update handles structure
+guidata(hObject, handles);
+showSelectedCell(handles);
 
 function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if getappdata(0,'windowListener')==1
+if handles.windowListener==1
     %% If you are not modifying ROIs
     if strcmp(eventdata.Source.SelectionType, 'normal')
         try
             pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
             pos = pos(1,1:2);
             
-            labelledImage = getappdata(0, 'labelledImageTemp');
-            labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
+            labelledImage = handles.labelledImageTemp;
+            labelledImageZ = labelledImage(:,:,handles.selectedZ)';
             selectedCell = labelledImageZ(pos(1), pos(2));
 
-            setappdata(0,'cellId',selectedCell);
+            handles.cellId = selectedCell;
             set(handles.tbCellId,'string',num2str(selectedCell));
-
-            showSelectedCell();
+            
+            % Update handles structure
+            guidata(hObject, handles);
+            showSelectedCell(handles);
         catch
         end
     end
@@ -455,27 +514,29 @@ function btRemove2DCell_Callback(hObject, eventdata, handles)
 % hObject    handle to btRemove2DCell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-cellId = getappdata(0, 'cellId');
-answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , ' on this frame?'], ...
+cellId = handles.cellId;
+answer = questdlg(['Are you sure to remove cell ', num2str(handles.cellId) , ' on this frame?'], ...
 	'Remove cell', ...
 	'Yes','No', 'No');
 if strcmp(answer, 'Yes')
     if cellId > 0
-        labelledImage = getappdata(0, 'labelledImageTemp');
-        labelledImage_selectedZ = labelledImage(:, :, getappdata(0, 'selectedZ'));
+        labelledImage = handles.labelledImageTemp;
+        labelledImage_selectedZ = labelledImage(:, :, handles.selectedZ);
         labelledImage_selectedZ(labelledImage_selectedZ == cellId) = 0;
-        labelledImage(:, :, getappdata(0, 'selectedZ')) = labelledImage_selectedZ;
-        setappdata(0, 'labelledImageTemp', labelledImage);
+        labelledImage(:, :, handles.selectedZ) = labelledImage_selectedZ;
+        handles.labelledImageTemp = labelledImage;
     else
-        lumenImage = getappdata(0, 'lumenImageTemp');
-        lumenImage_selectedZ = lumenImage(:, :, getappdata(0, 'selectedZ'));
+        lumenImage = handles.lumenImageTemp;
+        lumenImage_selectedZ = lumenImage(:, :, handles.selectedZ);
         lumenImage_selectedZ(lumenImage_selectedZ == 1) = 0;
-        lumenImage(:, :, getappdata(0, 'selectedZ')) = lumenImage_selectedZ;
-        setappdata(0, 'lumenImageTemp', lumenImage);
+        lumenImage(:, :, handles.selectedZ) = lumenImage_selectedZ;
+        handles.lumenImageTemp = lumenImage;
     end
-    updateResizedImage();
+    % Update handles structure
+    guidata(hObject, handles);
+    updateResizedImage(hObject, handles);
 end
-showSelectedCell();
+showSelectedCell(handles);
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
@@ -483,21 +544,18 @@ function slider1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 numZ = round(get(hObject,'Value'));
-setappdata(0, 'selectedZ', numZ);
+handles.selectedZ = numZ;
 set(handles.tbZFrame,'string',num2str(numZ));
-showSelectedCell();
+% Update handles structure
+guidata(hObject, handles);
+showSelectedCell(handles);
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-imageSequence = getappdata(0, 'imageSequence');
 
-set(hObject,'Max',size(imageSequence,3));
-set(hObject,'Value',1);
-set(hObject,'Min',1);
-set(hObject,'SliderStep',[1 1]./(size(imageSequence,3)-1));
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
@@ -510,9 +568,10 @@ function showBackground_Callback(hObject, eventdata, handles)
 % hObject    handle to showBackground (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-toggleValue = get(hObject,'Value') == 1;
-setappdata(0, 'showBackground', toggleValue)
-showSelectedCell();
+handles.showBackground = get(hObject,'Value') == 1;
+% Update handles structure
+guidata(hObject, handles);
+showSelectedCell(handles);
 
 
 % --- Executes on button press in btFillHoles.
@@ -520,9 +579,9 @@ function btFillHoles_Callback(hObject, eventdata, handles)
 % hObject    handle to btFillHoles (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labelledImage = getappdata(0,'labelledImageTemp');
-lumenImage = getappdata(0,'lumenImageTemp');
-selectedZ = getappdata(0, 'selectedZ');
+labelledImage = handles.labelledImageTemp;
+lumenImage = handles.lumenImageTemp;
+selectedZ = handles.selectedZ;
 labelledImageZ = uint16(labelledImage(:,:,selectedZ));
 lumenImageZ = lumenImage(:,:,selectedZ);
 
@@ -530,9 +589,11 @@ invalidRegionZ = labelledImageZ == 0 & ~lumenImageZ;
 invalidRegionZ = imfill(invalidRegionZ == 0, 'holes') & lumenImageZ == 0;
  
 labelledImage(:,:,selectedZ) = fill0sWithCells(labelledImageZ, labelledImageZ, invalidRegionZ == 0);
-setappdata(0,'labelledImageTemp',labelledImage);
-updateResizedImage();
-showSelectedCell();
+handles.labelledImageTemp = labelledImage;
+% Update handles structure
+guidata(hObject, handles);
+updateResizedImage(hObject, handles);
+showSelectedCell(handles);
 
 
 % --- Executes on button press in btMaintainBigObject.
@@ -540,8 +601,8 @@ function btMaintainBigObject_Callback(hObject, eventdata, handles)
 % hObject    handle to btMaintainBigObject (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labelledImageResized = getappdata(0,'labelledImageTemp_Resized');
-labelledImage = getappdata(0,'labelledImageTemp');
+labelledImageResized = handles.labelledImageTemp_Resized;
+labelledImage = handles.labelledImageTemp;
 progressBar = waitbar(0, 'Removing splitted objects', 'WindowStyle', 'modal');
 
 uniqIds = unique(labelledImageResized);
@@ -561,10 +622,12 @@ for idCell = uniqIds'
         labelledImage(mask3d == idx) = idCell;
     end
 end
-setappdata(0,'labelledImageTemp',labelledImage)
-updateResizedImage();
+handles.labelledImageTemp = labelledImage;
+% Update handles structure
+guidata(hObject, handles);
+updateResizedImage(hObject, handles);
 close(progressBar)
-showSelectedCell();
+showSelectedCell(handles);
 
 
 % --- Executes on button press in btInterpolate3Dcell.
@@ -572,18 +635,18 @@ function btInterpolate3Dcell_Callback(hObject, eventdata, handles)
 % hObject    handle to btInterpolate3Dcell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labelledImage = getappdata(0,'labelledImageTemp');
-lumenImage = getappdata(0,'lumenImageTemp');
-cellID = getappdata(0, 'cellId');
+labelledImage = handles.labelledImageTemp;
+lumenImage = handles.lumenImageTemp;
+cellID = handles.cellId;
 invalidRegion = labelledImage == 0 & ~lumenImage;
 progressBar = waitbar(0, 'Interpolating 3D cell', 'WindowStyle', 'modal');
 invalidRegion = imfill(invalidRegion == 0, 18 , 'holes') & lumenImage == 0;
 waitbar(0.2)
 if cellID>0
-    if getappdata(0, 'canModifyOutsideGland') == 1
+    if handles.canModifyOutsideGland == 1
        invalidRegion(labelledImage == 0) = 0;
     end
-    if getappdata(0, 'canModifyInsideLumen') == 1
+    if handles.canModifyInsideLumen == 1
        invalidRegion(lumenImage == 0) = 0;
     end
 
@@ -614,11 +677,23 @@ if cellID>0
     maskCell3Duint16(invalidRegion) = 0;
 
     labelledImage(maskCell3Duint16>0) = cellID;
-    setappdata(0,'labelledImageTemp',labelledImage);
+    handles.labelledImageTemp = labelledImage;
     waitbar(0.9)
-    updateResizedImage();
-    showSelectedCell();
+    % Update handles structure
+    guidata(hObject, handles);
+    updateResizedImage(hObject, handles);
+    showSelectedCell(handles);
     waitbar(1)
     close(progressBar)
 
 end
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);

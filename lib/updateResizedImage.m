@@ -1,16 +1,19 @@
-function updateResizedImage()
+function updateResizedImage(hObject, handles)
 %UPDATERESIZEDIMAGE Summary of this function goes here
 %   Detailed explanation goes here
-    labelledImage = getappdata(0, 'labelledImageTemp');
-    lumenImage = getappdata(0, 'lumenImageTemp');
-    resizeImg = getappdata(0,'resizeImg');
+    labelledImage = handles.labelledImageTemp;
+    lumenImage = handles.lumenImageTemp;
+    resizeImg = handles.resizeImg;
     
     originalSize = size(labelledImage);
     sizeResized = originalSize * resizeImg;
     sizeResized(3) = originalSize(3);
     
-    setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
-    setappdata(0, 'lumenImageTemp_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
+    handles.labelledImageTemp_Resized = imresize3(labelledImage, sizeResized, 'nearest');
+    handles.lumenImageTemp_Resized = imresize3(double(lumenImage), sizeResized, 'nearest')>0;
+    
+    % Update handles structure
+    guidata(hObject, handles);
     
     zoom(gcf, 'off');
 end

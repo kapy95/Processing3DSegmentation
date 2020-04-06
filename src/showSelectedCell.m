@@ -1,15 +1,15 @@
-function [] = showSelectedCell()
+function [] = showSelectedCell(handles)
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
-selectCellId = getappdata(0, 'cellId');
-labelledImage_Resized = getappdata(0, 'labelledImageTemp_Resized');
-labelledImage = getappdata(0, 'labelledImageTemp');
-selectedZ = getappdata(0, 'selectedZ');
-lumenImage = getappdata(0, 'lumenImageTemp_Resized');
-showAllCells = getappdata(0, 'showAllCells');
-imageSequence = getappdata(0, 'imageSequence');
-resizeImg = getappdata(0, 'resizeImg');
-colours = getappdata(0, 'colours');
+selectCellId = handles.cellId;
+labelledImage_Resized = handles.labelledImageTemp_Resized;
+labelledImage = handles.labelledImageTemp;
+selectedZ = handles.selectedZ;
+lumenImage = handles.lumenImageTemp_Resized;
+showAllCells = handles.showAllCells;
+imageSequence = handles.imageSequence;
+resizeImg = handles.resizeImg;
+colours = handles.colours;
 
 imgToShow = mat2gray(imageSequence(:, :, selectedZ)');
 
@@ -48,7 +48,7 @@ end
 
 %% Showing lumen
 [xIndices, yIndices] = find(lumenImage(:, :,  selectedZ)' == 1);
-if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
+if isempty(xIndices) == 0 && handles.hideLumen == 0
     hold on
     s = scatter(xIndices/resizeImg, yIndices/resizeImg, 'red', 'filled','SizeData',10);
     hold off
@@ -57,7 +57,7 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
 end
 
 %% Showing bakckground
-if getappdata(0, 'showBackground') == 1
+if handles.showBackground == 1
     [xIndices, yIndices] = find(labelledImage_Resized(:, :,  selectedZ)' == 0 & lumenImage(:, :,  selectedZ)' == 0);
     hold on
     s = scatter(xIndices/resizeImg, yIndices/resizeImg, 'green', 'filled','SizeData',10);
