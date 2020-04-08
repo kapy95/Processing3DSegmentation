@@ -36,6 +36,7 @@ apicoBasalTransitionsLabels = cellfun(@(x, y) unique(vertcat(setdiff(x, y), setd
 apicoBasalTransitions = cellfun(@(x) length(x), apicoBasalTransitionsLabels);
 [verticesInfo] = getVertices3D(labelledImage, apicobasal_neighbours);
 indexCells = find(apicoBasalTransitions>0);
+indexCells=setdiff(indexCells,noValidCells);
 totalMsgs = 'Motives that could not be involved in apico-basal intercalations';
 
 for nIndex= 1:length(indexCells')
@@ -121,18 +122,23 @@ ID_cells=(1:length(basal3dInfo)).';
 CellularFeatures=table(ID_cells,number_neighbours.Var1',number_neighbours.Var2',total_neighbours3DRecount',apicobasal_neighboursRecount',scutoids_cells', apicoBasalTransitions', apical_area_cells,basal_area_cells, surfaceRatio, volume_cells);
 CellularFeatures.Properties.VariableNames = {'ID_Cell','Apical_sides','Basal_sides','Total_neighbours','Apicobasal_neighbours','Scutoids', 'apicoBasalTransitions', 'Apical_area','Basal_area', 'Surface_Ratio','Volume'};
 CellularFeaturesWithNoValidCells = CellularFeatures;
-CellularFeatures(noValidCells,:)=[];
+
+cellsPixels = regionprops3(labelledImage, 'Volume');
+cellsWithoutPixels = find(cellsPixels.Volume == 0);
+
+noValidCells = unique([noValidCells cellsWithoutPixels']);
+CellularFeatures(noValidCells,:) = [];
 
 
-% if isempty(outputDir) == 0
-%     writetable(CellularFeatures,fullfile(outputDir, 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
-% 
-%     %% Poligon distribution 
-%     polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
-%     writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
-%     writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);
-%     writetable(table('','VariableNames',{'Basal'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B6')
-%     writetable(table(polygon_distribution.Basal),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B7', 'WriteVariableNames',false);
-%     writetable(table('','VariableNames',{'Accumulate'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B10')
-%     writetable(table(polygon_distribution_3D),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B11', 'WriteVariableNames',false);
-% end
+if isempty(outputDir) == 0
+    writetable(CellularFeatures,fullfile(outputDir, 'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
+
+    %% Poligon distribution 
+    polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
+    writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
+    writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);
+    writetable(table('','VariableNames',{'Basal'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B6')
+    writetable(table(polygon_distribution.Basal),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B7', 'WriteVariableNames',false);
+    writetable(table('','VariableNames',{'Accumulate'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B10')
+    writetable(table(polygon_distribution_3D),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B11', 'WriteVariableNames',false);
+end
