@@ -19,7 +19,7 @@ function [labelledImage, lumenImage, glandOrientation] = processLumen(lumenDir, 
         ry(ry<1)=1;
       
         if isempty(x) == 0
-            lumenIndices = sub2ind(size(lumenImage), round(rx), round(ry), repmat(numZ, length(x), 1));
+            lumenIndices = sub2ind(size(lumenImage), round(ry), round(rx), repmat(numZ, length(x), 1));
             lumenImage(lumenIndices) = 1;
         end
     end
