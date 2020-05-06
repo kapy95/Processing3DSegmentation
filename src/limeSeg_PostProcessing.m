@@ -98,11 +98,10 @@ function limeSeg_PostProcessing(outputDir)
             labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
         end
         
-        labelledImage = addTipsImg3D(-tipValue,labelledImage);
-        outsideGland = addTipsImg3D(-tipValue,outsideGland);
-        lumenImage = addTipsImg3D(-tipValue,lumenImage);
+        [basalLayer, apicalLayer, colours] = postprocessGland(labelledImage, outsideGland, lumenImage, outputDir, colours, tipValue);
         
-        [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage, outsideGland, lumenImage, outputDir, colours, tipValue);
+        labelledImage = addTipsImg3D(-tipValue,labelledImage);
+        lumenImage = addTipsImg3D(-tipValue,lumenImage);
     end
     imgSize(1:2)= imgSize(1:2)./resizeImg;
     labelledImage = imresize3(labelledImage,imgSize,'nearest');
