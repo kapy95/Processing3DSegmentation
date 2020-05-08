@@ -24,7 +24,7 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
         end 
         save(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'noValidCells', 'validCells')
     end
-    [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(addTipsImg3D(tipValue,labelledImage), addTipsImg3D(tipValue,lumenImage), addTipsImg3D(tipValue,apicalLayer),addTipsImg3D(tipValue,basalLayer), colours, noValidCells);
+    [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer,basalLayer, colours, noValidCells);
 
     %% Insert no valid cells
     while isequal(answer, 'Yes')
@@ -41,12 +41,12 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
             colours = colours_Temp;
 
             close all
-            [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
+            [basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, 0);
            
             %% Save apical and basal 3d information
             save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
     
-            [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(addTipsImg3D(tipValue,labelledImage), addTipsImg3D(tipValue,lumenImage), addTipsImg3D(tipValue,apicalLayer),addTipsImg3D(tipValue,basalLayer), colours, noValidCells);
+            [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer,basalLayer, colours, noValidCells);
             
             %setappdata(0,'labelledImage',labelledImage);
             %setappdata(0,'lumenImage',lumenImage);
@@ -63,7 +63,7 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
 %     %% Export to excel cellular features
-%     cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,addTipsImg3D(tipValue,labelledImage),noValidCells,validCells,outputDir);
+%     cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir);
 %     
 %     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), 'cellularFeatures'); 
 
