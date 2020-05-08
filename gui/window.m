@@ -60,8 +60,12 @@ handles.closing = 0;
 
 set(0, 'currentfigure', hObject); 
 
-set(handles.missingApical,'string', strjoin(arrayfun(@num2str, varargin{9}, 'UniformOutput', false), ', '));
-set(handles.missingBasal,'string', strjoin(arrayfun(@num2str,varargin{10}, 'UniformOutput', false), ', '))
+if isempty(varargin{9}) == 0
+    set(handles.missingApical,'string', strjoin(arrayfun(@num2str, varargin{9}, 'UniformOutput', false), ', '));
+end
+if isempty(varargin{10}) == 0
+    set(handles.missingBasal,'string', strjoin(arrayfun(@num2str,varargin{10}, 'UniformOutput', false), ', '))
+end
 
 handles.imageSequence = varargin{1};
 handles.outputDir = varargin{2};
