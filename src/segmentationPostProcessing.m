@@ -30,7 +30,6 @@ function segmentationPostProcessing(labelledImage,lumenImage,apicalLayer,basalLa
     while isequal(answer, 'Yes')
         %volumeViewer(vertcat(labelledImage>0, lumenImage))
         [h, labelledImage_Temp, lumenImage_Temp, colours_Temp] = window(imageSequence, outputDir, labelledImage, lumenImage, resizeImg, tipValue, glandOrientation, colours, notFoundCellsApical, notFoundCellsBasal);
-        waitfor(h);
 
         savingResults = saveResults();
 

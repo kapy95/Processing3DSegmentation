@@ -115,7 +115,7 @@ if strcmp(get(hObject,'Visible'),'off')
 end
 
 % UIWAIT makes window wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -127,9 +127,11 @@ function varargout = window_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-varargout{2} = handles.labelledImage;
-varargout{3} = handles.lumenImage;
+varargout{2} = handles.labelledImageTemp;
+varargout{3} = handles.lumenImageTemp;
 varargout{4} = handles.colours;
+
+delete(handles.figure1);
 
 % --- Executes on button press in save.
 function save_Callback(hObject, eventdata, handles)
@@ -296,6 +298,7 @@ end
 handles.windowListener = 1;
 % Update handles structure
 guidata(hObject, handles);
+uiwait(handles.figure1);
 
 
 % --- Executes on button press in increaseID.
@@ -696,4 +699,11 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: delete(hObject) closes the figure
-delete(hObject);
+
+if isequal(get(hObject, 'waitstatus'), 'waiting')
+    % The GUI is still in UIWAIT, us UIRESUME
+    uiresume(hObject);
+else
+    % The GUI is no longer waiting, just close it
+    delete(hObject);
+end
