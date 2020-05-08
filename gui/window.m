@@ -90,6 +90,8 @@ handles.windowListener = 1;
 handles.showBackground = 0;
 handles.roiMask = -1;
 handles.canModifyOutsideGland = 0;
+handles.canModifyInsideLumen = 0;
+handles.hideLumen = 0;
 
 %% Output
 handles.labelledImage = varargin{3};
