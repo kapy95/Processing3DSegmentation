@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 03-Apr-2020 13:40:37
+% Last Modified by GUIDE v2.5 08-May-2020 17:14:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,9 +56,10 @@ function window_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for window
 handles.output = hObject;
-handles.closing = 0;
-
 set(0, 'currentfigure', hObject); 
+
+% Update handles structure
+guidata(hObject, handles);
 
 if isempty(varargin{9}) == 0
     set(handles.missingApical,'string', strjoin(arrayfun(@num2str, varargin{9}, 'UniformOutput', false), ', '));
@@ -109,6 +110,8 @@ set(handles.slider1,'Value',1);
 set(handles.slider1,'Min',1);
 set(handles.slider1,'SliderStep',[1 1]./(size(imageSequence,3)-1));
 
+set(handles.figure1,'toolbar','figure');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -120,6 +123,7 @@ end
 
 % UIWAIT makes window wait for user response (see UIRESUME)
 uiwait(handles.figure1);
+
 
 
 % --- Outputs from this function are returned to the command line.
