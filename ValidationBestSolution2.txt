@@ -1,0 +1,6 @@
+bestStrings,bestResults
+resultado10-gen1,0.0417427572318509
+Mejor individuo 2 iter,0.0404653816084842
+resultado41-gen2,0.0431478815988353
+resultado81-gen2,0.0448409028048206
+Mejor individuo 2 iter,0.0404653816084842

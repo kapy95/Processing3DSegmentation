@@ -1,9 +1,9 @@
-function paint3D(varargin)
+function paint3D_edited(colour_def,varargin)
 %PAINT3D Summary of this function goes here
 %   Detailed explanation goes here
     if nargin==2 
         labelledImage=varargin{1};
-        showingCells=varargin{2};
+        showingCells=1;
         colours = colorcube(double(max(labelledImage(:))));
         colours = colours(randperm(max(labelledImage(:))), :);
         prettyGraphics = 0;
@@ -39,7 +39,9 @@ function paint3D(varargin)
     else
         showingCells = unique(showingCells);
     end
-   
+    
+    colours=colour_def;%[1,1,1] es blanco
+    
     for numSeed = showingCells
         % Painting each cell
         [x,y,z] = ind2sub(size(labelledImage),find(labelledImage == numSeed));
