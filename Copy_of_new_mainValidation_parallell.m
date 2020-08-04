@@ -41,8 +41,6 @@ directorioSoluciones=dir("E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, v
 soloNombresDirectorios={directorioSoluciones.name};
 indicesGeneraciones = startsWith(soloNombresDirectorios,'resultado generacion');
 soloDirectoriosGeneraciones=directorioSoluciones(indicesGeneraciones);
-[~, reindex] = sort( str2double( regexp( {soloDirectoriosGeneraciones.name}, '\d+', 'match', 'once' )));
-soloDirectoriosGeneraciones=soloDirectoriosGeneraciones(reindex);
 contador=1;
 %list = ls("E:\TFM\Experimentación\22.06.2020\50 generaciones, 100 individuos, volumen+std 2")
 
@@ -98,7 +96,7 @@ for indGen=1:10
 end
 
 
-automaticSegmentationDirectory="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\mejor individuo gen9";
+automaticSegmentationDirectory="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion50\mejor individuo gen49";
 %jaccardValueMejorIndividuo=limeSeg_validation(automaticSegmentationDirectory,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
 dirMejorSolucion=dir(automaticSegmentationDirectory);
@@ -124,7 +122,7 @@ end
 jaccardValueMejorIndividuo=mean(jaccardValues);
 
 
-automaticSegmentationDirectory2="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\segundo mejor individuo gen9";
+automaticSegmentationDirectory2="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion50\segundo mejor individuo gen49";
 
 dirSegundaMejorSolucion=dir(automaticSegmentationDirectory2);
 nombresDirectoriosSolucion={dirSegundaMejorSolucion.name};
@@ -178,7 +176,7 @@ pos=find(numericArray>jaccardValueMejorIndividuo);
 bestResults=numericArray(pos);
 bestStrings=stringArray(pos);
 
-bestStrings(size(bestStrings)+1)="Mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Mejor individuo 50 iter";
 bestResults(size(bestResults)+1)=jaccardValueMejorIndividuo;
 
 
@@ -197,7 +195,7 @@ bestResults=numericArray(pos2);
 
 bestStrings=stringArray(pos2);
 
-bestStrings(size(bestStrings)+1)="Segundo mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Segundo mejor individuo 50 iter";
 bestResults(size(bestResults)+1)=jaccardValueSegundoMejorIndividuo;
 
 

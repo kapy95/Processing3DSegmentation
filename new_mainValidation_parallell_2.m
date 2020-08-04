@@ -6,12 +6,12 @@ addpath(genpath('gui'))
 close all
 
 %originalDataDirectory="E:\TFM\DatosGeneral\Newdata\data\Drosophila embryo\WT\04-10-18";
-originalDataDirectory="E:\TFM\3a-2\3a\3a";
+originalDataDirectory=".\3a-2\3a\3a";
 %ptCloud = pcread('E:\TFM\3a bien\3a\3a');
 
 [resizeImg,imgSize,zScale,tipValue]=limeSeg_PostProcessing_adapted(originalDataDirectory);
 %originalSegmentationDirectory="E:\TFM\DatosGeneral\Newdata\data\Drosophila embryo\WT\04-10-18\Cells\OutputLimeSeg";
-originalSegmentationDirectory="E:\TFM\3a-2\3a\3a\Cells\OutputLimeSeg";
+originalSegmentationDirectory=".\3a-2\3a\3a\Cells\OutputLimeSeg";
 
 directorioCelulasSegmentadasOriginales=dir(originalSegmentationDirectory);
 directorioCelulasSegmentadasOriginales([1,2])=[];%.,.. son borrados
@@ -37,12 +37,10 @@ end
 %realLogicalImage=logical(originaLabelledImage);
 
 %directorioSoluciones=dir("E:\TFM\Experimentación\23.06.2020\50 generaciones, 100 individuos, volumen+std");
-directorioSoluciones=dir("E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex");
+directorioSoluciones=dir(".\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex");
 soloNombresDirectorios={directorioSoluciones.name};
 indicesGeneraciones = startsWith(soloNombresDirectorios,'resultado generacion');
 soloDirectoriosGeneraciones=directorioSoluciones(indicesGeneraciones);
-[~, reindex] = sort( str2double( regexp( {soloDirectoriosGeneraciones.name}, '\d+', 'match', 'once' )));
-soloDirectoriosGeneraciones=soloDirectoriosGeneraciones(reindex);
 contador=1;
 %list = ls("E:\TFM\Experimentación\22.06.2020\50 generaciones, 100 individuos, volumen+std 2")
 
@@ -50,7 +48,7 @@ tam=size(soloDirectoriosGeneraciones);
 tam=tam(1);
 arrayCells=[{}];
 
-for indGen=1:10
+for indGen=1:1
     
     dirGen= strcat(strcat(soloDirectoriosGeneraciones(indGen).folder,"\"),soloDirectoriosGeneraciones(indGen).name);
     directorioGeneracion=dir(dirGen);
@@ -98,7 +96,7 @@ for indGen=1:10
 end
 
 
-automaticSegmentationDirectory="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\mejor individuo gen9";
+automaticSegmentationDirectory=".\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion0\mejor individuo gen1";
 %jaccardValueMejorIndividuo=limeSeg_validation(automaticSegmentationDirectory,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
 dirMejorSolucion=dir(automaticSegmentationDirectory);
@@ -124,7 +122,7 @@ end
 jaccardValueMejorIndividuo=mean(jaccardValues);
 
 
-automaticSegmentationDirectory2="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\segundo mejor individuo gen9";
+automaticSegmentationDirectory2=".\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion1\segundo mejor individuo gen0";
 
 dirSegundaMejorSolucion=dir(automaticSegmentationDirectory2);
 nombresDirectoriosSolucion={dirSegundaMejorSolucion.name};
@@ -178,7 +176,7 @@ pos=find(numericArray>jaccardValueMejorIndividuo);
 bestResults=numericArray(pos);
 bestStrings=stringArray(pos);
 
-bestStrings(size(bestStrings)+1)="Mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Mejor individuo 50 iter";
 bestResults(size(bestResults)+1)=jaccardValueMejorIndividuo;
 
 
@@ -197,7 +195,7 @@ bestResults=numericArray(pos2);
 
 bestStrings=stringArray(pos2);
 
-bestStrings(size(bestStrings)+1)="Segundo mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Segundo mejor individuo 50 iter";
 bestResults(size(bestResults)+1)=jaccardValueSegundoMejorIndividuo;
 
 
