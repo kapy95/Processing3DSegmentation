@@ -23,7 +23,7 @@ originicalCellMatrices=cell(tamPob(1,1),1);%tamPob(1,1)-> number of cells
 directorioCelulasSegmentadasOriginales=directorioCelulasSegmentadasOriginales(reindex);
 directoriosPrueba=string();
 
-parfor (indtam=1:tamPob(1,1),10)
+parfor (indtam=1:tamPob(1,1),12)
     
     directorioCell=strcat(strcat(directorioCelulasSegmentadasOriginales(indtam).folder,"\"),directorioCelulasSegmentadasOriginales(indtam).name);
     originaLabelledImageCell = edited_processCells(directorioCell, resizeImg, imgSize, zScale, tipValue);
@@ -37,7 +37,7 @@ end
 %realLogicalImage=logical(originaLabelledImage);
 
 %directorioSoluciones=dir("E:\TFM\Experimentación\23.06.2020\50 generaciones, 100 individuos, volumen+std");
-directorioSoluciones=dir("E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex");
+directorioSoluciones=dir("E:\TFM\Experimentación\14.08.2020\Glándula, 100 ind por gen, 50 gen, volumen promedio por el número de células no nulas + filtrado promedio de células no nulas globales");
 soloNombresDirectorios={directorioSoluciones.name};
 indicesGeneraciones = startsWith(soloNombresDirectorios,'resultado generacion');
 soloDirectoriosGeneraciones=directorioSoluciones(indicesGeneraciones);
@@ -50,7 +50,7 @@ tam=size(soloDirectoriosGeneraciones);
 tam=tam(1);
 arrayCells=[{}];
 
-for indGen=1:10
+for indGen=1:6
     
     dirGen= strcat(strcat(soloDirectoriosGeneraciones(indGen).folder,"\"),soloDirectoriosGeneraciones(indGen).name);
     directorioGeneracion=dir(dirGen);
@@ -79,8 +79,8 @@ for indGen=1:10
          
          [~, reindex] = sort( str2double( regexp( {dirSolucion.name}, '\d+', 'match', 'once' )));
          dirSolucion=dirSolucion(reindex);
-         
-        parfor (indSol=1:tamCells(1,1),10)
+        
+        parfor (indSol=1:tamCells(1,1),12)
              
              directorioCell=strcat(strcat(dirSolucion(indSol).folder,"\"),dirSolucion(indSol).name);
              realLogicalImage=originicalCellMatrices{indSol,1};
@@ -98,7 +98,7 @@ for indGen=1:10
 end
 
 
-automaticSegmentationDirectory="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\mejor individuo gen9";
+automaticSegmentationDirectory="E:\TFM\Experimentación\14.08.2020\Glándula, 100 ind por gen, 50 gen, volumen promedio por el número de células no nulas + filtrado promedio de células no nulas globales\resultado generacion6\mejor individuo gen5";
 %jaccardValueMejorIndividuo=limeSeg_validation(automaticSegmentationDirectory,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
 dirMejorSolucion=dir(automaticSegmentationDirectory);
@@ -112,7 +112,7 @@ jaccardValues=[];
 [~, reindex] = sort( str2double( regexp( {dirMejorSolucion.name}, '\d+', 'match', 'once' )));
 dirMejorSolucion=dirMejorSolucion(reindex);
 
-parfor (indSol=1:tamCells(1,1),10)
+parfor (indSol=1:tamCells(1,1),12)
 
      directorioCell=strcat(strcat(dirMejorSolucion(indSol).folder,"\"),dirMejorSolucion(indSol).name);
      %originaLabelledImageCell = edited_processCells(directorioCell, resizeImg, imgSize, zScale, tipValue);
@@ -124,8 +124,7 @@ end
 jaccardValueMejorIndividuo=mean(jaccardValues);
 
 
-automaticSegmentationDirectory2="E:\TFM\Experimentación\03.08.2020\Glándula,50 gen, volume+percentil 90 std vertex\resultado generacion10\segundo mejor individuo gen9";
-
+automaticSegmentationDirectory2="E:\TFM\Experimentación\14.08.2020\Glándula, 100 ind por gen, 50 gen, volumen promedio por el número de células no nulas + filtrado promedio de células no nulas globales\resultado generacion6\segundo mejor individuo gen5";
 dirSegundaMejorSolucion=dir(automaticSegmentationDirectory2);
 nombresDirectoriosSolucion={dirSegundaMejorSolucion.name};
 indiceXML = contains(nombresDirectoriosSolucion,'.xml'); %indices de archivos CSV
@@ -137,7 +136,7 @@ jaccardValues=[];
 [~, reindex] = sort( str2double( regexp( {dirSegundaMejorSolucion.name}, '\d+', 'match', 'once' )));
 dirSegundaMejorSolucion=dirSegundaMejorSolucion(reindex);
 
-parfor (indSol=1:tamCells(1,1),10)
+parfor (indSol=1:tamCells(1,1),12)
 
      directorioCell=strcat(strcat(dirSegundaMejorSolucion(indSol).folder,"\"),dirSegundaMejorSolucion(indSol).name);
      realLogicalImage=originicalCellMatrices{indSol,1};
@@ -170,7 +169,7 @@ stringArray=stringArray';
 numericArray=numericArray';
 
 T3 = table(stringArray,numericArray);
-writetable(T3,'allResultsValidation2.txt','Delimiter',',')
+writetable(T3,'allResultsValidation.txt','Delimiter',',')
 
 
 pos=find(numericArray>jaccardValueMejorIndividuo);
@@ -178,14 +177,14 @@ pos=find(numericArray>jaccardValueMejorIndividuo);
 bestResults=numericArray(pos);
 bestStrings=stringArray(pos);
 
-bestStrings(size(bestStrings)+1)="Mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Mejor individuo 6 iter";
 bestResults(size(bestResults)+1)=jaccardValueMejorIndividuo;
 
 
 %%%
 T = table(bestStrings,bestResults);
 
-writetable(T,'ValidationBestSolution2.txt','Delimiter',',')
+writetable(T,'ValidationBestSolution.txt','Delimiter',',')
 
 
 
@@ -197,14 +196,18 @@ bestResults=numericArray(pos2);
 
 bestStrings=stringArray(pos2);
 
-bestStrings(size(bestStrings)+1)="Segundo mejor individuo 10 iter";
+bestStrings(size(bestStrings)+1)="Segundo mejor individuo 6 iter";
 bestResults(size(bestResults)+1)=jaccardValueSegundoMejorIndividuo;
 
 
 T2 = table(bestStrings,bestResults);
 
-writetable(T2,'ValidationSecondBestSolution2.txt','Delimiter',',')
+writetable(T2,'ValidationSecondBestSolution.txt','Delimiter',',')
 
 
+%para dibujar la glándula:
+%originaLabelledImageCell = processCells("E:\TFM\3a-2\3a\3a\Cells\OutputLimeSeg", resizeImg, imgSize, zScale, tipValue);
+%realLogicalImage=Logical(originaLabelledImageCell)
+%jaccardValue=limeSeg_validation(outputDir,resizeImg,imgSize,zScale,tipValue,realLogicalImage)
 
 %score, jaccard score, F1 score and accuracy (precision) and recall. All values can be handled by matlab with function dice, jaccard, bfscore.

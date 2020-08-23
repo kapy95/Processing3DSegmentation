@@ -10,6 +10,8 @@ originalDataDirectory="E:\TFM\3a-2\3a\3a";
 %ptCloud = pcread('E:\TFM\3a bien\3a\3a');
 
 [resizeImg,imgSize,zScale,tipValue]=limeSeg_PostProcessing_adapted(originalDataDirectory);
+%zScale=3.52;%zscale de embryo
+zScale=4.06;
 %originalSegmentationDirectory="E:\TFM\DatosGeneral\Newdata\data\Drosophila embryo\WT\04-10-18\Cells\OutputLimeSeg";
 originalSegmentationDirectory="E:\TFM\3a-2\3a\3a\Cells\OutputLimeSeg";
 originaLabelledImage = processCells(originalSegmentationDirectory, resizeImg, imgSize, zScale, tipValue);
@@ -19,7 +21,8 @@ originaLabelledImage = processCells(originalSegmentationDirectory, resizeImg, im
 realLogicalImage=logical(originaLabelledImage);
 
 %directorioSoluciones=dir("E:\TFM\Experimentación\23.06.2020\50 generaciones, 100 individuos, volumen+std");
-directorioSoluciones=dir("E:\TFM\Experimentación\16.07.2020\Glándula, 6 generaciones, vol+90 percentile std vertex");%("E:\TFM\Resultados");
+stringDir="E:\TFM\Experimentación\22.08.2020\Glándula,50 generaciones 100 ind, número de células no nulas por volumen promedio";
+directorioSoluciones=dir(stringDir);
 soloNombresDirectorios={directorioSoluciones.name};
 indicesGeneraciones = startsWith(soloNombresDirectorios,'resultado generacion');
 soloDirectoriosGeneraciones=directorioSoluciones(indicesGeneraciones);
@@ -29,7 +32,14 @@ contador=1;
 tam=size(soloDirectoriosGeneraciones);
 tam=tam(1);
 arrayCells=[{}];
-for indGen=1:5
+contador=0;
+
+[~, reindex] = sort( str2double( regexp( {soloDirectoriosGeneraciones.name}, '\d+', 'match', 'once' )));
+soloDirectoriosGeneraciones=soloDirectoriosGeneraciones(reindex);
+directoriosPrueba=string();
+
+
+for indGen=1:50
 
     dirGen= strcat(strcat(soloDirectoriosGeneraciones(indGen).folder,"\"),soloDirectoriosGeneraciones(indGen).name);
     directorioGeneracion=dir(dirGen);
@@ -39,24 +49,26 @@ for indGen=1:5
     directorioGeneracion(indicesCSVs)=[]; %los archivos CSV son eliminados del método
     tamPob=size(directorioGeneracion);
     tamPob=tamPob(1);
-
     
-     for indPob=1:tamPob
+     parfor(indPob=1:tamPob,12)
          
          dirSeg= strcat(strcat(directorioGeneracion(indPob).folder,"\"),directorioGeneracion(indPob).name);
          jaccardValue=limeSeg_validation(dirSeg,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
-         arrayCells{1,contador}={jaccardValue,directorioGeneracion(indPob).name};
-         contador=contador+1;
+         arrayCells{1,indPob+contador}={jaccardValue,directorioGeneracion(indPob).name};
+         %arrayCells{1,contador}={jaccardValue,directorioGeneracion(indPob).name};
+         %contador=contador+1;
          
      end
+     
+     contador=tamPob+contador;
     
 end
 
 
-automaticSegmentationDirectory="E:\TFM\Experimentación\16.07.2020\Glándula,8 gen, percentil 85+vol medio\resultado generacion5\mejor individuo gen4";
+automaticSegmentationDirectory=stringDir+"\resultado generacion50\mejor individuo gen49";
 jaccardValueMejorIndividuo=limeSeg_validation(automaticSegmentationDirectory,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
-automaticSegmentationDirectory2="E:\TFM\Experimentación\16.07.2020\Glándula, 6 generaciones, vol+90 percentile std vertex\resultado generacion4\segundo mejor individuo gen3";
+automaticSegmentationDirectory2=stringDir+"\resultado generacion50\segundo mejor individuo gen49";
 jaccardValue2=limeSeg_validation(automaticSegmentationDirectory2,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
 numericArray=[];
@@ -87,7 +99,7 @@ pos=find(numericArray>jaccardValueMejorIndividuo);
 bestResults=numericArray(pos);
 bestStrings=stringArray(pos);
 
-bestStrings(size(bestStrings)+1)="Mejor individuo 2 iter";
+bestStrings(size(bestStrings)+1)="Mejor individuo 50 iter";
 
 
 bestResults(size(bestResults)+1)=jaccardValueMejorIndividuo;
@@ -107,7 +119,7 @@ pos2=find(jaccardValue2<numericArray);
 bestResults=numericArray(pos2);
 bestStrings=stringArray(pos2);
 
-bestStrings(size(bestStrings)+1)="Segundo mejor individuo 2 iter";
+bestStrings(size(bestStrings)+1)="Segundo mejor individuo 50 iter";
 
 
 bestResults(size(bestResults)+1)=jaccardValue2;
