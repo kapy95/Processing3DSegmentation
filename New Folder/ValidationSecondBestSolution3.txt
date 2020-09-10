@@ -1,3 +1,0 @@
-bestStrings,bestResults
-Segundo mejor individuo 2 iter,0.577483649591502
-Segundo mejor individuo 2 iter,0.577483649591502

@@ -1,3 +1,0 @@
-bestStrings,bestResults
-Mejor individuo 2 iter,0.482161698098705
-Mejor individuo 2 iter,0.482161698098705

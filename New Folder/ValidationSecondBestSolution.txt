@@ -1,2 +1,0 @@
-bestStrings_1,bestStrings_2,bestResults_1,bestResults_2
-resultado83-gen0,Segundo mejor individuo 2 iter,0.57026514836237,0.512492774898583
