@@ -26,7 +26,7 @@ realLogicalImage=logical(originaLabelledImage);
 %directorioSoluciones=dir("E:\TFM\Experimentación\23.06.2020\50 generaciones, 100 individuos, volumen+std");
 
 %se leen únicamente los directorios de los resultados 
-stringDir="E:\TFM\Experimentación\05.09.2020\Eggchamber fase4, 50 generaciones, 100 individuos";
+stringDir="E:\TFM\Experimentación\12.09.2020\Eggchamber, 100 generaciones 50 individuos";
 directorioSoluciones=dir(stringDir);
 soloNombresDirectorios={directorioSoluciones.name};
 indicesGeneraciones = startsWith(soloNombresDirectorios,'resultado generacion');
@@ -44,7 +44,7 @@ soloDirectoriosGeneraciones=soloDirectoriosGeneraciones(reindex);
 
 
 
-for indGen=1:51 %desde la generación 1 hasta X (en este caso 51)
+for indGen=1:101 %desde la generación 1 hasta X (en este caso 51)
     %se leen los archivos de un directorio
     dirGen= strcat(strcat(soloDirectoriosGeneraciones(indGen).folder,"\"),soloDirectoriosGeneraciones(indGen).name);
     directorioGeneracion=dir(dirGen);
@@ -75,10 +75,10 @@ end
 
 %se leen los directorios de los mejores individuos y se generan sus índices
 %de Jaccard:
-automaticSegmentationDirectory=stringDir+"\resultado generacion50\mejor individuo gen49";
+automaticSegmentationDirectory=stringDir+"\resultado generacion100\mejor individuo gen99";
 jaccardValueMejorIndividuo=limeSeg_validation(automaticSegmentationDirectory,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
-automaticSegmentationDirectory2=stringDir+"\resultado generacion50\segundo mejor individuo gen49";
+automaticSegmentationDirectory2=stringDir+"\resultado generacion100\segundo mejor individuo gen99";
 jaccardValue2=limeSeg_validation(automaticSegmentationDirectory2,resizeImg,imgSize,zScale,tipValue,realLogicalImage);
 
 numericArray=[];

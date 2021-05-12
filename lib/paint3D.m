@@ -1,7 +1,8 @@
 function paint3D(varargin)
 %PAINT3D Summary of this function goes here
 %   Detailed explanation goes here
-    if nargin==2 
+    
+    if nargin==5%nargin==2 
         labelledImage=varargin{1};
         showingCells=varargin{2};
         colours = colorcube(double(max(labelledImage(:))));
@@ -20,8 +21,10 @@ function paint3D(varargin)
     else
         labelledImage=varargin{1};
         showingCells = (1:max(labelledImage(:)))';
-        colours = colorcube(double(max(labelledImage(:))));
-        colours = colours(randperm(max(labelledImage(:))), :);
+        %cambio:
+        %colours = colorcube(double(max(labelledImage(:))));
+        %colours = colours(randperm(max(labelledImage(:))), :);
+        colours=varargin{2};
         prettyGraphics = 0;
     end
 
@@ -48,6 +51,7 @@ function paint3D(varargin)
                 shp = alphaShape(x,y,z, 1);
                 pc = criticalAlpha(shp,'one-region');
                 shp.Alpha = pc+3;
+                
                 plot(shp, 'FaceColor', colours(numSeed, :), 'EdgeColor', 'none', 'AmbientStrength', 0.3, 'FaceAlpha', 1);
             elseif prettyGraphics == 2
                 shp = alphaShape(x,y,z, 1);
@@ -59,12 +63,20 @@ function paint3D(varargin)
                 end
                 plot(shp, 'FaceColor', colours(numSeed, :), 'EdgeColor', 'none');
             else
-                pcshow([x,y,z], colours(numSeed, :));
+%                 set(gca,'xtick',[])%elimina el eje x
+%                 set(gca,'ytick',[])%elimina el eje y
+%                 set(gca,'ztick',[])%elimina el eje z
+%                 set(gca,'Color','w');%pone el fondo en blanco
+                %set(gca, 'edgeColor', 'none');
+                set(gca, 'CameraPosition', [100 5000 2000]);
+                pcshow([x,y,z],colours(numSeed, :));
+                
             end
             hold on;
         end
     end
     
+    %prettyGrpahics=1;
     if prettyGraphics == 1
         axis equal
         camlight left;

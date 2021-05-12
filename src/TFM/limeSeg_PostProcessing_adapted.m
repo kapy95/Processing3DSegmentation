@@ -1,8 +1,8 @@
-function [resizeImg,imgSize,zScale,tipValue]=limeSeg_PostProcessing_adapted(outputDir)
+function [resizeImg,imgSize,tipValue]=limeSeg_PostProcessing_adapted(outputDir)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
 
-    zScale=4.06;
+    %zScale=4.06;
     
     resizeImg = 0.25;
 
